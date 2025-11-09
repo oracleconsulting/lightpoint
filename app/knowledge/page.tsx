@@ -60,7 +60,7 @@ export default function KnowledgePage() {
           <div className="mb-8">
             <h2 className="text-xl font-semibold mb-4">Search Results</h2>
             <div className="space-y-4">
-              {searchResults.map((item) => (
+              {searchResults.map((item: any) => (
                 <Card key={item.id}>
                   <CardHeader>
                     <div className="flex justify-between items-start">
@@ -93,7 +93,7 @@ export default function KnowledgePage() {
           <h2 className="text-xl font-semibold mb-4">All Documents</h2>
           {allKnowledge && allKnowledge.length > 0 ? (
             <div className="space-y-4">
-              {allKnowledge.map((item) => (
+              {allKnowledge.map((item: any) => (
                 <Card key={item.id}>
                   <CardHeader>
                     <div className="flex items-start gap-3">
