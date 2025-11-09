@@ -1,6 +1,7 @@
 import { supabaseAdmin } from '@/lib/supabase/client';
 import { anonymizePII, extractStructuredData } from '@/lib/privacy';
 import { generateEmbedding } from '@/lib/embeddings';
+import { analyzeIndividualDocument } from '@/lib/documentAnalysis';
 // @ts-ignore - pdf-parse doesn't have proper types
 import pdfParse from 'pdf-parse';
 // @ts-ignore - mammoth doesn't have proper types
@@ -100,11 +101,32 @@ export const processDocument = async (
     const extractedData = extractStructuredData(anonymizedText);
     console.log('✅ Structured data extracted:', extractedData);
     
-    // 4. Generate embedding for similarity search (only if we have meaningful text)
-    let embedding = null;
+    // Check if we have meaningful text to process
     const hasValidText = rawText.length > 50 && 
                         !rawText.includes('[Text extraction') && 
                         !rawText.includes('[Document text extraction pending');
+    
+    // 3.5 STAGE 1: Deep document analysis (captures EVERYTHING)
+    console.log('🔄 Stage 1: Performing deep document analysis...');
+    let detailedAnalysis = null;
+    if (hasValidText) {
+      try {
+        detailedAnalysis = await analyzeIndividualDocument(
+          anonymizedText,
+          documentType,
+          fileName
+        );
+        console.log('✅ Stage 1 analysis complete - ALL details captured');
+      } catch (analysisError: any) {
+        console.error('❌ Document analysis failed:', analysisError.message);
+        // Continue without detailed analysis - basic extraction is still available
+      }
+    } else {
+      console.log('⏭️ Skipping deep analysis (insufficient text)');
+    }
+    
+    // 4. Generate embedding for similarity search (only if we have meaningful text)
+    let embedding = null;
     
     if (hasValidText) {
       try {
@@ -133,6 +155,7 @@ export const processDocument = async (
           raw_text_length: rawText.length,
           file_name: fileName,
           has_embedding: !!embedding,
+          detailed_analysis: detailedAnalysis, // STAGE 1: Full analysis stored here
         },
         embedding: embedding, // Store the embedding vector directly
         vector_id: null,
