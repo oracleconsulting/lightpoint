@@ -1,6 +1,6 @@
 /**
  * Generate embedding for text using OpenRouter
- * Using openai/text-embedding-3-large via OpenRouter API
+ * Using text-embedding-ada-002 via OpenRouter API (1536 dimensions)
  */
 export const generateEmbedding = async (text: string): Promise<number[]> => {
   const apiKey = process.env.OPENROUTER_API_KEY;
@@ -19,7 +19,7 @@ export const generateEmbedding = async (text: string): Promise<number[]> => {
         'X-Title': 'Lightpoint HMRC Complaint System',
       },
       body: JSON.stringify({
-        model: 'openai/text-embedding-3-large',
+        model: 'openai/text-embedding-ada-002',
         input: text,
       }),
     });
@@ -64,7 +64,7 @@ export const generateEmbeddingsBatch = async (texts: string[]): Promise<number[]
         'X-Title': 'Lightpoint HMRC Complaint System',
       },
       body: JSON.stringify({
-        model: 'openai/text-embedding-3-large',
+        model: 'openai/text-embedding-ada-002',
         input: texts,
       }),
     });
