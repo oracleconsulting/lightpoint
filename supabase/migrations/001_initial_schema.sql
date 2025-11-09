@@ -51,7 +51,7 @@ create table knowledge_base (
   title text not null,
   content text not null,
   source text,
-  embedding vector(1536),
+  embedding vector(3072),
   metadata jsonb default '{}'::jsonb,
   created_at timestamp with time zone default now()
 );
@@ -66,7 +66,7 @@ create table precedents (
   compensation_amount numeric,
   key_arguments text[],
   effective_citations text[],
-  embedding vector(1536),
+  embedding vector(3072),
   metadata jsonb default '{}'::jsonb,
   created_at timestamp with time zone default now()
 );
@@ -102,7 +102,7 @@ with (lists = 100);
 
 -- Create function for vector similarity search (knowledge base)
 create or replace function match_knowledge_base(
-  query_embedding vector(1536),
+  query_embedding vector(3072),
   match_threshold float,
   match_count int
 )
@@ -129,7 +129,7 @@ $$;
 
 -- Create function for vector similarity search (precedents)
 create or replace function match_precedents(
-  query_embedding vector(1536),
+  query_embedding vector(3072),
   match_threshold float,
   match_count int
 )

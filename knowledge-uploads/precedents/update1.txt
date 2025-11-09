@@ -1,0 +1,155 @@
+# HMRC Complaint Identification and Response Guide
+
+## Key Timeframe Violations That Warrant Immediate Complaint
+
+### Investigation and Inquiry Timeframes
+
+1. **Standard Tax Inquiries**
+   - **Normal timeframe**: 12-18 months maximum
+   - **Complaint trigger**: Any inquiry extending beyond 2 years without clear justification
+   - **Severe violation**: Inquiries extending beyond 3 years with no complex fraud or avoidance issues
+   - **Critical violation**: Any inquiry beyond 5 years, especially those concluding with no amendments
+
+2. **Self Assessment Inquiries**
+   - **Statutory deadline**: HMRC must open an inquiry within 12 months of filing
+   - **Normal resolution timeframe**: 3-6 months for straightforward inquiries
+   - **Complaint trigger**: Inquiries open for more than 12 months with minimal communication
+   - **Severe violation**: Self Assessment inquiries extending beyond 24 months
+
+3. **Compliance Checks**
+   - **Normal timeframe**: 3-6 months
+   - **Complaint trigger**: Checks extending beyond 12 months
+   - **Severe violation**: Checks lasting over 18 months with no criminal or fraud elements
+
+### Response Timeframes
+
+1. **General Correspondence**
+   - **HMRC Charter commitment**: 15 working days
+   - **Complaint trigger**: No response after 28 days
+   - **Severe violation**: No response after 8 weeks or more
+
+2. **Formal Complaints**
+   - **First tier review**: Response within 15 working days
+   - **Complaint trigger**: No response after 28 days
+   - **Second tier review**: Decision within 15 working days
+   - **Escalation trigger**: No decision after 6 weeks
+
+3. **Repayment Claims**
+   - **Standard timeframe**: 30 days
+   - **Complaint trigger**: No repayment after 8 weeks
+   - **Severe violation**: Repayments delayed beyond 12 weeks
+
+## HMRC Charter Violations Requiring Immediate Complaint
+
+1. **Being Responsive**
+   - Failure to respond to correspondence within 15 working days
+   - Multiple attempts required to get any response
+   - Repeated transfers between departments without resolution
+
+2. **Getting Things Right**
+   - Sending incorrect notices despite having correct information
+   - Reopening settled matters without new information
+   - Repeatedly making the same error despite corrections
+
+3. **Treating You Fairly**
+   - Pursuing collection during active disputes
+   - Applying penalties without proper investigation
+   - Placing burden of proof on taxpayer for HMRC's errors
+
+4. **Making Things Easy**
+   - Systems preventing compliance with tax obligations
+   - Contradictory instructions from different departments
+   - Requiring multiple submissions of the same information
+
+## Specific Document Indicators of Policy Breaches
+
+1. **Date Disparities**
+   - Documents showing extended timeframes between investigation start and conclusion
+   - Dates showing response times significantly exceeding HMRC's own standards
+   - Multiple years between correspondence on the same matter
+
+2. **Conclusion Statements**
+   - "No amendments required" after extended investigation
+   - "Case closed with no further action" after years of inquiry
+   - "No evidence of error or discrepancy" after lengthy investigation
+
+3. **System Error Indicators**
+   - References to data migration issues
+   - Mentions of "technical limitations" or "system constraints"
+   - Statement that "our systems show different information"
+
+## Compensation Entitlements for Common Violations
+
+### Unreasonable Delays
+
+1. **Professional Fees**
+   - Full reimbursement for professional costs directly resulting from HMRC delays
+   - Typical range: £75-£250 per hour depending on complexity and advisor qualifications
+   - Required evidence: Itemized and receipted invoices showing work necessitated by HMRC's delay
+
+2. **Worry and Distress Payments**
+   - Standard range: £25-£500 (most at lower end)
+   - Severe cases: Up to £1,000 for exceptional circumstances
+   - Higher amounts typically for vulnerable individuals or those with documented health impacts
+
+### Administrative Errors
+
+1. **Direct Costs**
+   - Postage, telephone, travel costs with evidence
+   - Bank charges or financial penalties resulting from HMRC errors
+   - Interest lost due to delayed repayments
+
+2. **Professional Fee Reimbursement Triggers**
+   - Repeated correspondence to correct HMRC errors
+   - Attendance at meetings necessitated by HMRC mistakes
+   - Time spent addressing collection actions based on incorrect information
+
+## Immediate Action Checklist for Policy Breaches
+
+1. **Document the Breach**
+   - Identify specific timeframe violation or Charter commitment breach
+   - Calculate exact duration of delays or investigation
+   - Gather all correspondence showing the chronology of events
+
+2. **Prepare Formal Complaint**
+   - Mark correspondence clearly as "FORMAL COMPLAINT" in subject line
+   - Reference specific HMRC guidance and Charter commitments violated
+   - Provide precise chronology with relative timeframes
+   - State clear remedies sought including specific compensation categories
+
+3. **Track Professional Time**
+   - Document all time spent addressing the issue from the outset
+   - Keep contemporaneous records linking time directly to HMRC's error
+   - Separate time records by category (correspondence, meetings, research)
+
+4. **Set Clear Escalation Timeline**
+   - Allow exactly 28 days for response to formal complaint
+   - Schedule follow-up at the 29-day mark
+   - Plan second tier complaint timing if first tier is inadequate
+   - Prepare Adjudicator referral documentation at 6-week mark if no response
+
+## Key CRG References for Common Violations
+
+1. **Unreasonable Delays**
+   - CRG4025: Establishes when delays become unreasonable
+   - CRG6125: Addresses worry and distress caused by unreasonable delays
+
+2. **Professional Fees Reimbursement**
+   - CRG5225: Guidelines on reasonableness of professional fees
+   - CRG5100: Framework for considering financial redress claims
+
+3. **Poor Complaint Handling**
+   - CRG6150: Payments for poor complaint handling (separate from original complaint)
+   - CRG7000: Documentation requirements for complaints
+
+4. **System Errors**
+   - CRG3250: Defines system failures and appropriate remedies
+   - CRG3175-3200: Guidance on misleading advice and system limitations
+
+## Template Paragraph for Clear Timeframe Violations
+
+```
+I am writing to lodge a formal complaint regarding the unreasonable delay in [specific HMRC action]. According to your correspondence dated [date], this matter has been ongoing since [start date], representing a period of [X years/months]. This significantly exceeds any reasonable timeframe for [type of action] and directly contradicts HMRC's Charter commitment to "Being responsive" and "resolving things as quickly as we can." According to CRG4025, while not every delay is unreasonable, a delay of this magnitude for a matter that [resulted in no changes/was straightforward/etc.] clearly falls below your own standards and constitutes an unreasonable delay warranting remedy under your Complaints and Remedy Guidance.
+```
+
+This comprehensive guide should help you immediately identify clear breaches of HMRC's own policies and take appropriate action without requiring further clarification in future cases.

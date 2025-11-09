@@ -20,6 +20,7 @@
  * 3. Documents are automatically categorized and uploaded
  */
 
+import 'dotenv/config';
 import fs from 'fs';
 import path from 'path';
 // @ts-ignore
