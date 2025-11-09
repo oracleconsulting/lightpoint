@@ -258,6 +258,7 @@ export const appRouter = router({
       .input(z.object({
         complaintId: z.string(),
         analysis: z.any(),
+        practiceLetterhead: z.string().optional(), // Optional: custom practice details
       }))
       .mutation(async ({ input }) => {
         // Get complaint details
@@ -269,11 +270,12 @@ export const appRouter = router({
         
         if (!complaint) throw new Error('Complaint not found');
         
-        // Generate letter
+        // Generate letter with optional practice letterhead
         const letter = await generateComplaintLetter(
           input.analysis,
           (complaint as any).complaint_reference,
-          (complaint as any).hmrc_department || 'HMRC'
+          (complaint as any).hmrc_department || 'HMRC',
+          input.practiceLetterhead // Pass practice details if provided
         );
         
         // Log time (optional - don't fail if this fails)

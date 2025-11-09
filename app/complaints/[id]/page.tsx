@@ -9,6 +9,7 @@ import { TimelineView } from '@/components/complaint/TimelineView';
 import { ViolationChecker } from '@/components/analysis/ViolationChecker';
 import { PrecedentMatcher } from '@/components/analysis/PrecedentMatcher';
 import { LetterPreview } from '@/components/complaint/LetterPreview';
+import { getPracticeLetterhead } from '@/lib/practiceSettings';
 import Link from 'next/link';
 import { ArrowLeft, FileText, Sparkles, Send } from 'lucide-react';
 import { useState } from 'react';
@@ -54,9 +55,13 @@ export default function ComplaintDetailPage({ params }: { params: { id: string }
 
   const handleGenerateLetter = () => {
     if (analysisData) {
+      // Get practice letterhead if configured
+      const practiceLetterhead = getPracticeLetterhead();
+      
       generateLetter.mutate({
         complaintId: params.id,
         analysis: analysisData.analysis,
+        practiceLetterhead, // Pass practice details
       });
     }
   };

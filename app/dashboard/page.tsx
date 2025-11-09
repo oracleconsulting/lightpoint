@@ -5,7 +5,7 @@ import { Card, CardHeader, CardTitle, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import Link from 'next/link';
-import { Plus, FileText, AlertCircle, CheckCircle, TrendingUp, Clock } from 'lucide-react';
+import { Plus, FileText, AlertCircle, CheckCircle, TrendingUp, Clock, Building2 } from 'lucide-react';
 
 // Mock data for demo - replace with actual auth
 const MOCK_ORGANIZATION_ID = '00000000-0000-0000-0000-000000000001';
@@ -67,12 +67,20 @@ export default function DashboardPage() {
             <h1 className="text-2xl font-bold">Lightpoint</h1>
             <p className="text-sm text-muted-foreground">HMRC Complaint Management</p>
           </div>
-          <Link href="/complaints/new">
-            <Button>
-              <Plus className="h-4 w-4 mr-2" />
-              New Complaint
-            </Button>
-          </Link>
+          <div className="flex gap-2">
+            <Link href="/settings">
+              <Button variant="outline">
+                <Building2 className="h-4 w-4 mr-2" />
+                Practice Settings
+              </Button>
+            </Link>
+            <Link href="/complaints/new">
+              <Button>
+                <Plus className="h-4 w-4 mr-2" />
+                New Complaint
+              </Button>
+            </Link>
+          </div>
         </div>
       </header>
 

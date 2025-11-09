@@ -220,7 +220,8 @@ Quality Checks Before Responding:
 export const generateComplaintLetter = async (
   complaintAnalysis: any,
   clientReference: string,
-  hmrcDepartment: string
+  hmrcDepartment: string,
+  practiceLetterhead?: string // Optional: custom practice details
 ) => {
   console.log('✍️ Letter Generation: Using Claude Opus 4.1 (superior writing quality)');
   
@@ -233,13 +234,9 @@ export const generateComplaintLetter = async (
 
 CRITICAL OUTPUT REQUIREMENTS:
 
-1. NO PLACEHOLDERS - Generate a complete, ready-to-send letter:
-   ❌ NEVER use: [Your Name], [Date], [Phone Number], [Address], etc.
-   ✅ ALWAYS use realistic professional details:
-      - Firm name: "Professional Accountancy Services Ltd" or similar
-      - Address: Realistic UK business address
-      - Contact: Professional email/phone format
-      - Date: Use "Date: [Insert Today's Date]" for user to update
+1. PRACTICE LETTERHEAD - ${practiceLetterhead ? 'Use the provided practice details EXACTLY as given' : 'Generate realistic professional details'}:
+   ${practiceLetterhead ? '✅ Practice details provided - use them exactly\n   ❌ DO NOT modify or add placeholders' : '❌ NEVER use: [Your Name], [Date], [Phone Number], [Address], etc.\n   ✅ ALWAYS use realistic professional details:\n      - Firm name: "Professional Accountancy Services Ltd" or similar\n      - Address: Realistic UK business address\n      - Contact: Professional email/phone format'}
+   - Date: Use "Date: [Insert Today's Date]" for user to update
 
 2. SPECIFIC DETAILS - Extract and use ALL specific information provided:
    - Exact reference numbers (e.g., "000079849735 / SAEEU01/129274")
@@ -380,14 +377,15 @@ ${JSON.stringify(complaintAnalysis, null, 2)}
 
 CLIENT REFERENCE: ${clientReference}
 HMRC DEPARTMENT: ${hmrcDepartment}
-
+${practiceLetterhead ? `\nPRACTICE LETTERHEAD (use exactly as provided):\n${practiceLetterhead}\n` : ''}
 INSTRUCTIONS:
-1. Extract all specific details from the analysis (dates, amounts, references)
-2. Build a detailed timeline showing persistent follow-up over many months
-3. Reference specific CRG sections for each violation
-4. Use strong, assertive professional language
-5. Include all mandatory sections per the system prompt
-6. Output a COMPLETE letter with NO placeholders
+1. ${practiceLetterhead ? 'Use the provided practice letterhead EXACTLY as given at the top of the letter' : 'Generate a realistic professional letterhead'}
+2. Extract all specific details from the analysis (dates, amounts, references)
+3. Build a detailed timeline showing persistent follow-up over many months
+4. Reference specific CRG sections for each violation
+5. Use strong, assertive professional language
+6. Include all mandatory sections per the system prompt
+7. Output a COMPLETE letter with NO placeholders
 
 Generate the complete formal complaint letter now:`
       }
