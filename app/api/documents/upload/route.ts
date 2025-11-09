@@ -22,7 +22,7 @@ export async function POST(request: NextRequest) {
 
     // Upload to Supabase Storage
     const fileName = `${complaintId}/${documentType}/${Date.now()}_${file.name}`;
-    const { data: uploadData, error: uploadError } = await supabaseAdmin.storage
+    const { data: uploadData, error: uploadError } = await (supabaseAdmin as any).storage
       .from('complaint-documents')
       .upload(fileName, buffer, {
         contentType: file.type,
@@ -41,7 +41,7 @@ export async function POST(request: NextRequest) {
       buffer,
       complaintId,
       documentType as any,
-      uploadData.path
+      (uploadData as any).path
     );
 
     return NextResponse.json({ success: true, document });

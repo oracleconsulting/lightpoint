@@ -68,13 +68,13 @@ export const uploadDocument = async (
   try {
     const fileName = `${complaintId}/${documentType}/${Date.now()}_${file.name}`;
     
-    const { data, error } = await supabaseAdmin.storage
+    const { data, error } = await (supabaseAdmin as any).storage
       .from('complaint-documents')
       .upload(fileName, file);
     
     if (error) throw error;
     
-    return data.path;
+    return (data as any).path;
   } catch (error) {
     console.error('File upload error:', error);
     throw new Error('Failed to upload file');
@@ -86,13 +86,13 @@ export const uploadDocument = async (
  */
 export const getDocumentUrl = async (filePath: string): Promise<string> => {
   try {
-    const { data } = await supabaseAdmin.storage
+    const { data } = await (supabaseAdmin as any).storage
       .from('complaint-documents')
       .createSignedUrl(filePath, 3600); // 1 hour expiry
     
     if (!data) throw new Error('Failed to generate URL');
     
-    return data.signedUrl;
+    return (data as any).signedUrl;
   } catch (error) {
     console.error('Get document URL error:', error);
     throw new Error('Failed to get document URL');
