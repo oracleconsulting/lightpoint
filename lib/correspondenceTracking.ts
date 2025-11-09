@@ -20,7 +20,7 @@ export const trackCorrespondence = async (
       .eq('id', complaintId)
       .single();
     
-    const currentTimeline = complaint?.timeline || [];
+    const currentTimeline = (complaint as any)?.timeline || [];
     
     // Create timeline event
     const event = {
