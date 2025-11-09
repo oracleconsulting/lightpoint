@@ -44,9 +44,9 @@ export default function DashboardPage() {
 
   const stats = {
     total: complaints?.length || 0,
-    active: complaints?.filter(c => c.status === 'active').length || 0,
-    escalated: complaints?.filter(c => c.status === 'escalated').length || 0,
-    resolved: complaints?.filter(c => c.status === 'resolved').length || 0,
+    active: complaints?.filter((c: any) => c.status === 'active').length || 0,
+    escalated: complaints?.filter((c: any) => c.status === 'escalated').length || 0,
+    resolved: complaints?.filter((c: any) => c.status === 'resolved').length || 0,
   };
 
   return (
@@ -129,7 +129,7 @@ export default function DashboardPage() {
               <p className="text-center text-muted-foreground py-8">Loading complaints...</p>
             ) : complaints && complaints.length > 0 ? (
               <div className="space-y-4">
-                {complaints.map((complaint) => (
+                {complaints.map((complaint: any) => (
                   <Link key={complaint.id} href={`/complaints/${complaint.id}`}>
                     <div className="border rounded-lg p-4 hover:bg-muted transition-colors cursor-pointer">
                       <div className="flex items-start justify-between">
@@ -137,10 +137,10 @@ export default function DashboardPage() {
                           {getStatusIcon(complaint.status)}
                           <div>
                             <p className="font-medium">
-                              {complaint.client_reference}
+                              {complaint.complaint_reference || 'Untitled Complaint'}
                             </p>
                             <p className="text-sm text-muted-foreground">
-                              {complaint.hmrc_department || 'HMRC'} • {complaint.complaint_type || 'General'}
+                              {complaint.client_name_encrypted || 'Client'} • {complaint.status}
                             </p>
                             <p className="text-xs text-muted-foreground mt-1">
                               Created {new Date(complaint.created_at).toLocaleDateString()}
