@@ -3,10 +3,14 @@
   "version": "1.0.0",
   "description": "HMRC Complaint Management System for Accountants",
   "private": true,
+  "engines": {
+    "node": ">=20.0.0",
+    "npm": ">=10.0.0"
+  },
   "scripts": {
     "dev": "next dev -p 3004",
     "build": "next build",
-    "start": "next start -p ${PORT:-3004}",
+    "start": "NODE_OPTIONS='--dns-result-order=ipv4first' next start -p ${PORT:-3004}",
     "lint": "next lint",
     "type-check": "tsc --noEmit"
   },
