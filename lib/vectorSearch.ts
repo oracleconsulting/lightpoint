@@ -14,7 +14,7 @@ export const searchKnowledgeBase = async (
     const embedding = await generateEmbedding(queryText);
     
     // Search using Supabase RPC function
-    const { data, error } = await supabaseAdmin.rpc('match_knowledge_base', {
+    const { data, error } = await (supabaseAdmin as any).rpc('match_knowledge_base', {
       query_embedding: embedding,
       match_threshold: threshold,
       match_count: matchCount,
@@ -42,7 +42,7 @@ export const searchPrecedents = async (
     const embedding = await generateEmbedding(queryText);
     
     // Search using Supabase RPC function
-    const { data, error } = await supabaseAdmin.rpc('match_precedents', {
+    const { data, error } = await (supabaseAdmin as any).rpc('match_precedents', {
       query_embedding: embedding,
       match_threshold: threshold,
       match_count: matchCount,
