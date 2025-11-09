@@ -411,7 +411,6 @@ export const appRouter = router({
         if (error) throw new Error(error.message);
         return data;
       }),
-  }),
 
     generateResponse: publicProcedure
       .input(z.object({
