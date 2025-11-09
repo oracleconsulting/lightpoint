@@ -4,7 +4,7 @@ import { useState } from 'react';
 import { Card, CardHeader, CardTitle, CardContent, CardDescription } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
-import { Upload, X, FileText, AlertCircle, CheckCircle2, Clock, Sparkles } from 'lucide-react';
+import { Upload, X, FileText, AlertCircle, CheckCircle2, Clock, Sparkles, FolderOpen } from 'lucide-react';
 import Image from 'next/image';
 
 interface BatchAssessmentProps {
