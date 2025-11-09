@@ -8,11 +8,13 @@
 import { callOpenRouter } from './openrouter/client';
 import { sanitizeForLLM } from './privacy';
 
-const ANALYSIS_MODEL = 'anthropic/claude-opus-4.1';
+// Use Sonnet 4.5 for document analysis (1M context, cheaper, fast)
+const ANALYSIS_MODEL = 'anthropic/claude-sonnet-4.5';
 
 /**
  * Stage 1: Analyze individual document in full detail
  * This captures EVERYTHING without loss of information
+ * Uses Claude Sonnet 4.5 (1M tokens, $3/M input - 5x cheaper than Opus)
  */
 export async function analyzeIndividualDocument(
   documentText: string,
@@ -20,10 +22,10 @@ export async function analyzeIndividualDocument(
   fileName: string
 ): Promise<DocumentAnalysis> {
   
-  console.log(`📄 Stage 1: Analyzing ${fileName} (${documentText.length} chars)`);
+  console.log(`📄 Stage 1 (Sonnet 4.5): Analyzing ${fileName} (${documentText.length} chars)`);
   
   const response = await callOpenRouter({
-    model: ANALYSIS_MODEL,
+    model: ANALYSIS_MODEL, // Sonnet 4.5 for analysis
     messages: [
       {
         role: 'system',

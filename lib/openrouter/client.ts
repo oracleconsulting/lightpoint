@@ -1,6 +1,14 @@
 /**
- * OpenRouter API client for Claude Opus 4.1 integration
+ * OpenRouter API client for Claude integration
+ * 
+ * Model Strategy:
+ * - Sonnet 4.5: Analysis (1M context, $3/M input, fast)
+ * - Opus 4.1: Letter generation (200K context, $15/M input, superior writing)
  */
+
+// Model selection based on task
+const ANALYSIS_MODEL = 'anthropic/claude-sonnet-4.5'; // 1M tokens, cheaper, for analysis
+const LETTER_MODEL = 'anthropic/claude-opus-4.1';     // 200K tokens, better writing
 
 interface OpenRouterMessage {
   role: 'system' | 'user' | 'assistant';
@@ -31,11 +39,9 @@ interface OpenRouterResponse {
 }
 
 const OPENROUTER_API_URL = 'https://openrouter.ai/api/v1/chat/completions';
-// Using Claude Opus 4.1 (latest model)
-const DEFAULT_MODEL = 'anthropic/claude-opus-4.1';
 
 /**
- * Call OpenRouter API with Claude Opus 4.1
+ * Call OpenRouter API with specified model
  */
 export const callOpenRouter = async (
   request: OpenRouterRequest
@@ -45,6 +51,8 @@ export const callOpenRouter = async (
   if (!apiKey) {
     throw new Error('OPENROUTER_API_KEY is not configured');
   }
+  
+  console.log(`🤖 Calling OpenRouter with model: ${request.model}`);
 
   try {
     const response = await fetch(OPENROUTER_API_URL, {
@@ -56,7 +64,7 @@ export const callOpenRouter = async (
         'X-Title': 'Lightpoint HMRC Complaint System',
       },
       body: JSON.stringify({
-        model: request.model || DEFAULT_MODEL,
+        model: request.model,
         messages: request.messages,
         temperature: request.temperature || 0.7,
         max_tokens: request.max_tokens || 2000,
@@ -78,14 +86,17 @@ export const callOpenRouter = async (
 
 /**
  * Analyze HMRC complaint for violations
+ * Uses Claude Sonnet 4.5 (1M context - can handle full documents)
  */
 export const analyzeComplaint = async (
   documentData: string,
   relevantGuidance: string,
   similarCases: string
 ) => {
+  console.log('🔍 Analysis: Using Claude Sonnet 4.5 (1M context window)');
+  
   const response = await callOpenRouter({
-    model: DEFAULT_MODEL,
+    model: ANALYSIS_MODEL, // Sonnet 4.5 for analysis
     messages: [
       {
         role: 'system',
@@ -204,14 +215,17 @@ Quality Checks Before Responding:
 
 /**
  * Generate formal complaint letter
+ * Uses Claude Opus 4.1 (superior language and persuasive writing)
  */
 export const generateComplaintLetter = async (
   complaintAnalysis: any,
   clientReference: string,
   hmrcDepartment: string
 ) => {
+  console.log('✍️ Letter Generation: Using Claude Opus 4.1 (superior writing quality)');
+  
   const response = await callOpenRouter({
-    model: DEFAULT_MODEL,
+    model: LETTER_MODEL, // Opus 4.1 for superior letter writing
     messages: [
       {
         role: 'system',
