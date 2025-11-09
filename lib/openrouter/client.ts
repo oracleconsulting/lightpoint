@@ -101,7 +101,9 @@ Analyze documents for:
 3. CRG guidance breaches
 4. Applicable precedents
 
-Provide analysis in JSON format with:
+CRITICAL: Respond with ONLY valid JSON (no markdown, no code blocks, no explanations).
+
+Required format:
 {
   "hasGrounds": boolean,
   "violations": [{ "type": string, "description": string, "citation": string }],
@@ -121,10 +123,25 @@ CRITICAL: Never process or include personal data. All data should be pre-anonymi
   });
 
   try {
-    return JSON.parse(response);
+    // Claude often wraps JSON in markdown code blocks, so extract it
+    let jsonText = response.trim();
+    
+    // Remove markdown code blocks if present
+    const jsonBlockMatch = jsonText.match(/```(?:json)?\s*\n?([\s\S]*?)\n?```/);
+    if (jsonBlockMatch) {
+      jsonText = jsonBlockMatch[1].trim();
+    }
+    
+    // Try to parse the JSON
+    const parsed = JSON.parse(jsonText);
+    console.log('✅ Successfully parsed analysis response');
+    return parsed;
   } catch (error) {
-    console.error('Failed to parse OpenRouter response:', error);
-    throw new Error('Invalid analysis response format');
+    console.error('❌ Failed to parse OpenRouter response:', error);
+    console.error('Raw response:', response);
+    console.error('Response length:', response?.length);
+    console.error('Response preview:', response?.substring(0, 500));
+    throw new Error(`Invalid analysis response format: ${error.message}`);
   }
 };
 
