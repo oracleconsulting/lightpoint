@@ -49,20 +49,37 @@ export const appRouter = router({
         status: z.enum(['assessment', 'draft', 'active', 'escalated', 'resolved', 'closed']).optional(),
       }))
       .query(async ({ input }) => {
-        let query = supabaseAdmin
-          .from('complaints')
-          .select('*')
-          .eq('organization_id', input.organizationId);
-        
-        if (input.status) {
-          query = query.eq('status', input.status);
+        try {
+          console.log('📋 Fetching complaints for org:', input.organizationId);
+          
+          let query = supabaseAdmin
+            .from('complaints')
+            .select('*')
+            .eq('organization_id', input.organizationId);
+          
+          if (input.status) {
+            query = query.eq('status', input.status);
+          }
+          
+          const { data, error } = await query.order('created_at', { ascending: false });
+          
+          console.log('📋 Supabase response:', { 
+            hasData: !!data, 
+            dataCount: data?.length, 
+            hasError: !!error,
+            errorDetails: error 
+          });
+          
+          if (error) {
+            console.error('❌ Supabase error details:', JSON.stringify(error, null, 2));
+            throw new Error(`Supabase error: ${error.message} (${error.code || 'no code'})`);
+          }
+          
+          return data;
+        } catch (err: any) {
+          console.error('❌ Complaints list error:', err);
+          throw err;
         }
-        
-        const { data, error } = await query.order('created_at', { ascending: false });
-        
-        if (error) throw new Error(error.message);
-        
-        return data;
       }),
 
     getById: publicProcedure
