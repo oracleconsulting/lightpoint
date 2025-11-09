@@ -1,0 +1,6 @@
+[phases.setup]
+nixPkgs = ["nodejs_20", "npm-10_x"]
+
+[start]
+cmd = "NODE_OPTIONS='--dns-result-order=ipv4first' npm start"
+
