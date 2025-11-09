@@ -125,8 +125,9 @@ export const processDocument = async (
       .from('documents')
       .insert({
         complaint_id: complaintId,
+        filename: fileName, // Required: original filename
+        file_path: filePath, // Required: storage path
         document_type: documentType,
-        file_path: filePath,
         processed_data: {
           ...extractedData,
           raw_text_length: rawText.length,
