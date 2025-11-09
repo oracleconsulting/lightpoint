@@ -104,7 +104,7 @@ export const privacyMiddleware = {
     // Import here to avoid circular dependency
     const { supabaseAdmin } = await import('@/lib/supabase/client');
     
-    return await supabaseAdmin.from('audit_logs').insert({
+    return await (supabaseAdmin as any).from('audit_logs').insert({
       user_id: userId,
       action,
       data_type: dataType,

@@ -72,7 +72,7 @@ export const addToKnowledgeBase = async (
     const embedding = await generateEmbedding(content);
     
     // Insert into database
-    const { data, error } = await supabaseAdmin
+    const { data, error } = await (supabaseAdmin as any)
       .from('knowledge_base')
       .insert({
         category,
@@ -115,7 +115,7 @@ export const addPrecedent = async (
     const embedding = await generateEmbedding(searchableText);
     
     // Insert into database
-    const { data, error } = await supabaseAdmin
+    const { data, error } = await (supabaseAdmin as any)
       .from('precedents')
       .insert({
         complaint_type: complaintType,

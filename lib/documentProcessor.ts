@@ -36,7 +36,7 @@ export const processDocument = async (
     const embedding = await generateEmbedding(anonymizedText);
     
     // 5. Store in Supabase
-    const { data: document, error } = await supabaseAdmin
+    const { data: document, error} = await (supabaseAdmin as any)
       .from('documents')
       .insert({
         complaint_id: complaintId,

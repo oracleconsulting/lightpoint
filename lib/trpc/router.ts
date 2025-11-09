@@ -19,7 +19,7 @@ export const appRouter = router({
         hmrcDepartment: z.string().optional(),
       }))
       .mutation(async ({ input }) => {
-        const { data, error } = await supabaseAdmin
+        const { data, error } = await (supabaseAdmin as any)
           .from('complaints')
           .insert({
             organization_id: input.organizationId,

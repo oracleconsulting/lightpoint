@@ -10,7 +10,7 @@ export const logTime = async (
   automated: boolean = true
 ) => {
   try {
-    const { data, error } = await supabaseAdmin
+    const { data, error } = await (supabaseAdmin as any)
       .from('time_logs')
       .insert({
         complaint_id: complaintId,
