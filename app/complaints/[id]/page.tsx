@@ -58,10 +58,15 @@ export default function ComplaintDetailPage({ params }: { params: { id: string }
       // Get practice letterhead if configured
       const practiceLetterhead = getPracticeLetterhead();
       
+      // Get practice settings for charge-out rate
+      const practiceSettings = typeof window !== 'undefined' ? 
+        JSON.parse(localStorage.getItem('lightpoint_practice_settings') || 'null') : null;
+      
       generateLetter.mutate({
         complaintId: params.id,
         analysis: analysisData.analysis,
         practiceLetterhead, // Pass practice details
+        chargeOutRate: practiceSettings?.chargeOutRate, // Pass charge-out rate
       });
     }
   };
