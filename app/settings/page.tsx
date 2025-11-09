@@ -21,7 +21,7 @@ export default function PracticeSettingsPage() {
       phone: '',
       email: '',
     },
-    chargeOutRate: 185,
+    chargeOutRate: 185, // London professional rate (£150-250 typical)
     defaultSignatory: '',
   });
   
@@ -222,7 +222,7 @@ export default function PracticeSettingsPage() {
                 className="mt-1.5"
               />
               <p className="text-xs text-muted-foreground mt-1">
-                Standard professional hourly rate for fee recovery
+                Standard professional hourly rate for fee recovery (London typical: £150-250)
               </p>
             </div>
 
