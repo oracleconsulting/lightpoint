@@ -71,7 +71,7 @@ export const checkEscalationTriggers = async (complaintId: string) => {
     
     if (!complaint) return;
     
-    const timeline = complaint.timeline || [];
+    const timeline = (complaint as any).timeline || [];
     const now = new Date();
     
     // Check for overdue responses
@@ -84,8 +84,8 @@ export const checkEscalationTriggers = async (complaintId: string) => {
     });
     
     // Escalate if more than 2 overdue responses
-    if (overdueEvents.length >= 2 && complaint.status !== 'escalated') {
-      await supabaseAdmin
+    if (overdueEvents.length >= 2 && (complaint as any).status !== 'escalated') {
+      await (supabaseAdmin as any)
         .from('complaints')
         .update({
           status: 'escalated',
