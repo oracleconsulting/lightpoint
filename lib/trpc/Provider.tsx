@@ -23,7 +23,7 @@ export function TRPCProvider({ children }: { children: React.ReactNode }) {
       transformer: superjson,
       links: [
         httpBatchLink({
-          url: `${process.env.NEXT_PUBLIC_APP_URL || 'http://localhost:3004'}/api/trpc`,
+          url: '/api/trpc',
         }),
       ],
     })

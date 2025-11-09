@@ -51,7 +51,7 @@ export const callOpenRouter = async (
       headers: {
         'Authorization': `Bearer ${apiKey}`,
         'Content-Type': 'application/json',
-        'HTTP-Referer': process.env.NEXT_PUBLIC_APP_URL || 'http://localhost:3004',
+        'HTTP-Referer': typeof window !== 'undefined' ? window.location.origin : 'https://lightpoint.app',
         'X-Title': 'Lightpoint HMRC Complaint System',
       },
       body: JSON.stringify({
