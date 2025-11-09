@@ -22,20 +22,48 @@ export const processDocument = async (
   filePath: string
 ): Promise<ProcessedDocument> => {
   try {
-    // 1. Extract text from PDF
-    const pdfData = await pdfParse(fileBuffer);
-    const rawText = pdfData.text;
+    console.log('📄 Processing document:', { complaintId, documentType, filePath, size: fileBuffer.length });
+    
+    // 1. Extract text from PDF (skip text extraction for non-PDFs for now)
+    let rawText = '';
+    try {
+      console.log('🔄 Attempting PDF text extraction...');
+      const pdfData = await pdfParse(fileBuffer);
+      rawText = pdfData.text;
+      console.log(`✅ Extracted ${rawText.length} characters from PDF`);
+    } catch (pdfError: any) {
+      console.warn('⚠️ PDF parsing failed (might be DOCX or other format):', pdfError.message);
+      // For non-PDF files (DOCX, etc.), we'll store with minimal processing for now
+      rawText = '[Document text extraction pending - DOCX/other format]';
+    }
     
     // 2. Anonymize PII
+    console.log('🔄 Anonymizing PII...');
     const anonymizedText = anonymizePII(rawText);
+    console.log('✅ PII anonymized');
     
     // 3. Extract structured data
+    console.log('🔄 Extracting structured data...');
     const extractedData = extractStructuredData(anonymizedText);
+    console.log('✅ Structured data extracted:', extractedData);
     
-    // 4. Generate embedding for similarity search
-    const embedding = await generateEmbedding(anonymizedText);
+    // 4. Generate embedding for similarity search (only if we have meaningful text)
+    let embedding = null;
+    if (rawText.length > 50 && !rawText.includes('[Document text extraction pending')) {
+      try {
+        console.log('🔄 Generating embedding...');
+        embedding = await generateEmbedding(anonymizedText);
+        console.log(`✅ Embedding generated: ${embedding.length} dimensions`);
+      } catch (embError: any) {
+        console.error('❌ Embedding generation failed:', embError.message);
+        // Continue without embedding - we can regenerate later
+      }
+    } else {
+      console.log('⏭️ Skipping embedding generation (insufficient text)');
+    }
     
     // 5. Store in Supabase
+    console.log('🔄 Inserting document record into database...');
     const { data: document, error} = await (supabaseAdmin as any)
       .from('documents')
       .insert({
@@ -43,17 +71,26 @@ export const processDocument = async (
         document_type: documentType,
         file_path: filePath,
         processed_data: extractedData,
-        vector_id: null, // Could store embedding separately if needed
+        embedding: embedding, // Store the embedding vector directly
+        vector_id: null,
       })
       .select()
       .single();
     
-    if (error) throw error;
+    if (error) {
+      console.error('❌ Database insert error:', JSON.stringify(error, null, 2));
+      throw error;
+    }
     
+    console.log(`✅ Document stored in database: ${document.id}`);
     return document;
-  } catch (error) {
-    console.error('Document processing error:', error);
-    throw new Error('Failed to process document');
+  } catch (error: any) {
+    console.error('❌ Document processing error:', {
+      message: error.message,
+      stack: error.stack,
+      name: error.name,
+    });
+    throw new Error(`Failed to process document: ${error.message}`);
   }
 };
 
