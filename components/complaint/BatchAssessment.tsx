@@ -146,7 +146,7 @@ export function BatchAssessment({ organizationId, userId }: BatchAssessmentProps
             <input
               type="file"
               multiple
-              accept=".pdf,.doc,.docx"
+              accept=".pdf,.doc,.docx,.txt,.xls,.xlsx,.csv"
               onChange={handleFileSelect}
               className="hidden"
               id="batch-file-upload"

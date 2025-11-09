@@ -85,7 +85,7 @@ export function DocumentUploader({ complaintId, onUploadComplete }: DocumentUplo
           <div className="flex items-center gap-4">
             <Input
               type="file"
-              accept="application/pdf"
+              accept=".pdf,.doc,.docx,.txt,.xls,.xlsx,.csv"
               onChange={handleFileChange}
               disabled={uploading}
               className="flex-1"

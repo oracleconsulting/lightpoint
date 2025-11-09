@@ -3,6 +3,9 @@ import { anonymizePII, extractStructuredData } from '@/lib/privacy';
 import { generateEmbedding } from '@/lib/embeddings';
 // @ts-ignore - pdf-parse doesn't have proper types
 import pdfParse from 'pdf-parse';
+// @ts-ignore - mammoth doesn't have proper types
+import mammoth from 'mammoth';
+import * as XLSX from 'xlsx';
 
 export interface ProcessedDocument {
   id: string;
@@ -13,7 +16,58 @@ export interface ProcessedDocument {
 }
 
 /**
- * Process uploaded document (PDF)
+ * Extract text from various file formats
+ */
+const extractTextFromFile = async (fileBuffer: Buffer, fileName: string): Promise<string> => {
+  const fileExtension = fileName.toLowerCase().split('.').pop();
+  
+  console.log(`🔍 Detected file type: .${fileExtension}`);
+  
+  try {
+    switch (fileExtension) {
+      case 'pdf':
+        console.log('📄 Extracting text from PDF...');
+        const pdfData = await pdfParse(fileBuffer);
+        return pdfData.text;
+      
+      case 'doc':
+      case 'docx':
+        console.log('📝 Extracting text from DOCX...');
+        const docResult = await mammoth.extractRawText({ buffer: fileBuffer });
+        return docResult.value;
+      
+      case 'txt':
+        console.log('📝 Reading text file...');
+        return fileBuffer.toString('utf-8');
+      
+      case 'xls':
+      case 'xlsx':
+      case 'csv':
+        console.log('📊 Extracting text from spreadsheet...');
+        const workbook = XLSX.read(fileBuffer, { type: 'buffer' });
+        let allText = '';
+        
+        // Extract text from all sheets
+        workbook.SheetNames.forEach((sheetName) => {
+          const sheet = workbook.Sheets[sheetName];
+          const sheetText = XLSX.utils.sheet_to_txt(sheet, { blankrows: false });
+          allText += `\n=== Sheet: ${sheetName} ===\n${sheetText}\n`;
+        });
+        
+        return allText;
+      
+      default:
+        console.warn(`⚠️ Unsupported file type: .${fileExtension}`);
+        return `[Text extraction not supported for .${fileExtension} files - file stored for manual review]`;
+    }
+  } catch (error: any) {
+    console.error(`❌ Text extraction failed for .${fileExtension}:`, error.message);
+    throw new Error(`Failed to extract text from .${fileExtension} file: ${error.message}`);
+  }
+};
+
+/**
+ * Process uploaded document - supports PDF, DOCX, DOC, TXT, XLS, XLSX, CSV
  */
 export const processDocument = async (
   fileBuffer: Buffer,
@@ -22,19 +76,18 @@ export const processDocument = async (
   filePath: string
 ): Promise<ProcessedDocument> => {
   try {
-    console.log('📄 Processing document:', { complaintId, documentType, filePath, size: fileBuffer.length });
+    const fileName = filePath.split('/').pop() || 'unknown';
+    console.log('📄 Processing document:', { complaintId, documentType, fileName, size: fileBuffer.length });
     
-    // 1. Extract text from PDF (skip text extraction for non-PDFs for now)
+    // 1. Extract text from file (supports multiple formats)
     let rawText = '';
     try {
-      console.log('🔄 Attempting PDF text extraction...');
-      const pdfData = await pdfParse(fileBuffer);
-      rawText = pdfData.text;
-      console.log(`✅ Extracted ${rawText.length} characters from PDF`);
-    } catch (pdfError: any) {
-      console.warn('⚠️ PDF parsing failed (might be DOCX or other format):', pdfError.message);
-      // For non-PDF files (DOCX, etc.), we'll store with minimal processing for now
-      rawText = '[Document text extraction pending - DOCX/other format]';
+      rawText = await extractTextFromFile(fileBuffer, fileName);
+      console.log(`✅ Extracted ${rawText.length} characters from ${fileName}`);
+    } catch (extractError: any) {
+      console.error('❌ Text extraction failed:', extractError.message);
+      // Store document anyway with placeholder text
+      rawText = `[Text extraction failed for ${fileName}: ${extractError.message}]`;
     }
     
     // 2. Anonymize PII
@@ -49,7 +102,11 @@ export const processDocument = async (
     
     // 4. Generate embedding for similarity search (only if we have meaningful text)
     let embedding = null;
-    if (rawText.length > 50 && !rawText.includes('[Document text extraction pending')) {
+    const hasValidText = rawText.length > 50 && 
+                        !rawText.includes('[Text extraction') && 
+                        !rawText.includes('[Document text extraction pending');
+    
+    if (hasValidText) {
       try {
         console.log('🔄 Generating embedding...');
         embedding = await generateEmbedding(anonymizedText);
@@ -70,7 +127,12 @@ export const processDocument = async (
         complaint_id: complaintId,
         document_type: documentType,
         file_path: filePath,
-        processed_data: extractedData,
+        processed_data: {
+          ...extractedData,
+          raw_text_length: rawText.length,
+          file_name: fileName,
+          has_embedding: !!embedding,
+        },
         embedding: embedding, // Store the embedding vector directly
         vector_id: null,
       })
