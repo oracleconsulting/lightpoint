@@ -28,7 +28,7 @@ export function ComplaintWizard({ organizationId, userId }: ComplaintWizardProps
   });
 
   const createComplaint = trpc.complaints.create.useMutation({
-    onSuccess: (data) => {
+    onSuccess: (data: any) => {
       router.push(`/complaints/${data.id}`);
     },
   });
