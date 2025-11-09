@@ -136,7 +136,7 @@ CRITICAL: Never process or include personal data. All data should be pre-anonymi
     const parsed = JSON.parse(jsonText);
     console.log('✅ Successfully parsed analysis response');
     return parsed;
-  } catch (error) {
+  } catch (error: any) {
     console.error('❌ Failed to parse OpenRouter response:', error);
     console.error('Raw response:', response);
     console.error('Response length:', response?.length);
