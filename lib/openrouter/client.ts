@@ -1,5 +1,5 @@
 /**
- * OpenRouter API client for Claude-3 Opus integration
+ * OpenRouter API client for Claude Opus 4.1 integration
  */
 
 interface OpenRouterMessage {
@@ -31,10 +31,11 @@ interface OpenRouterResponse {
 }
 
 const OPENROUTER_API_URL = 'https://openrouter.ai/api/v1/chat/completions';
-const DEFAULT_MODEL = 'anthropic/claude-3-opus';
+// Using Claude Opus 4.1 (latest as of Nov 2024)
+const DEFAULT_MODEL = 'anthropic/claude-opus-4-20250514';
 
 /**
- * Call OpenRouter API with Claude-3 Opus
+ * Call OpenRouter API with Claude Opus 4.1
  */
 export const callOpenRouter = async (
   request: OpenRouterRequest
