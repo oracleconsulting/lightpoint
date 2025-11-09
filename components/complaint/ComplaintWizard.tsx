@@ -26,11 +26,16 @@ export function ComplaintWizard({ organizationId, userId }: ComplaintWizardProps
 
   const createComplaint = trpc.complaints.create.useMutation({
     onSuccess: async (data: any) => {
+      console.log('✅ Complaint created:', data);
+      
       // After creating complaint, upload all documents
       if (files.length > 0) {
         setIsUploading(true);
+        console.log(`📤 Uploading ${files.length} documents...`);
+        
         try {
           for (const file of files) {
+            console.log(`Uploading: ${file.name}`);
             const formData = new FormData();
             formData.append('file', file);
             formData.append('complaintId', data.id);
@@ -42,18 +47,25 @@ export function ComplaintWizard({ organizationId, userId }: ComplaintWizardProps
             });
 
             if (!response.ok) {
-              console.error(`Failed to upload ${file.name}`);
+              console.error(`❌ Failed to upload ${file.name}:`, await response.text());
+            } else {
+              console.log(`✅ Uploaded ${file.name}`);
             }
           }
         } catch (error) {
-          console.error('Error uploading files:', error);
+          console.error('❌ Error uploading files:', error);
         } finally {
           setIsUploading(false);
         }
       }
       
       // Navigate to the complaint page
+      console.log(`🔄 Navigating to /complaints/${data.id}`);
       router.push(`/complaints/${data.id}`);
+    },
+    onError: (error) => {
+      console.error('❌ Failed to create complaint:', error);
+      alert(`Failed to create complaint: ${error.message}`);
     },
   });
 
@@ -69,6 +81,10 @@ export function ComplaintWizard({ organizationId, userId }: ComplaintWizardProps
   };
 
   const handleSubmit = () => {
+    console.log('🚀 handleSubmit called');
+    console.log('Form data:', formData);
+    console.log('Files:', files.map(f => f.name));
+    
     createComplaint.mutate({
       organizationId,
       createdBy: userId,
