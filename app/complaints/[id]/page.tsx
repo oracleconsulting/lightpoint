@@ -35,7 +35,8 @@ export default function ComplaintDetailPage({ params }: { params: { id: string }
 
   const handleAnalyze = () => {
     if (documents && documents.length > 0) {
-      analyzeDocument.mutate({ documentId: documents[0].id });
+      // Type assertion since we know documents exist at this point
+      analyzeDocument.mutate({ documentId: (documents as any[])[0].id });
     }
   };
 
