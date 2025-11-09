@@ -1,0 +1,9 @@
+# Place custom LLM prompts here
+
+Example prompts to add:
+- Custom analysis prompts
+- Letter generation templates
+- Specific guidance for your firm
+- Tone and style preferences
+
+Supported formats: TXT, MD
