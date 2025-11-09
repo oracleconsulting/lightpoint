@@ -20,7 +20,7 @@ export function ComplaintWizard({ organizationId, userId }: ComplaintWizardProps
   const [formData, setFormData] = useState({
     clientReference: '',
     hmrcDepartment: '',
-    complaintType: '',
+    complaintTypes: [] as string[],
     complaintContext: '',
     keyDates: '',
     financialImpact: '',
@@ -50,7 +50,16 @@ export function ComplaintWizard({ organizationId, userId }: ComplaintWizardProps
       createdBy: userId,
       clientReference: formData.clientReference,
       hmrcDepartment: formData.hmrcDepartment,
-      complaintType: formData.complaintType,
+      complaintType: formData.complaintTypes.join(', ') || 'To be determined',
+    });
+  };
+
+  const toggleComplaintType = (type: string) => {
+    setFormData({
+      ...formData,
+      complaintTypes: formData.complaintTypes.includes(type)
+        ? formData.complaintTypes.filter(t => t !== type)
+        : [...formData.complaintTypes, type]
     });
   };
 
@@ -110,27 +119,59 @@ export function ComplaintWizard({ organizationId, userId }: ComplaintWizardProps
               </div>
             </div>
 
-            {/* Complaint Type */}
+            {/* Complaint Type - Multi-select */}
             <div>
               <label className="text-sm font-medium">Complaint Type *</label>
-              <select
-                className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm"
-                value={formData.complaintType}
-                onChange={(e) =>
-                  setFormData({ ...formData, complaintType: e.target.value })
-                }
-              >
-                <option value="">Select type</option>
-                <option value="Unreasonable delay">Unreasonable delay</option>
-                <option value="Poor communication">Poor communication</option>
-                <option value="Incorrect advice">Incorrect advice</option>
-                <option value="Penalty error">Penalty error</option>
-                <option value="Lost correspondence">Lost correspondence</option>
-                <option value="Failure to respond">Failure to respond</option>
-                <option value="Discourteous behaviour">Discourteous behaviour</option>
-                <option value="System error">System error</option>
-                <option value="Other">Other</option>
-              </select>
+              <p className="text-xs text-muted-foreground mb-2">
+                Select all that apply, or choose "To be determined" if you'll identify issues from the context
+              </p>
+              <div className="grid grid-cols-2 gap-3 p-4 border rounded-md bg-muted/30">
+                {[
+                  'To be determined (see context)',
+                  'Unreasonable delay',
+                  'Poor communication',
+                  'Incorrect advice',
+                  'Penalty error',
+                  'Lost correspondence',
+                  'Failure to respond',
+                  'Discourteous behaviour',
+                  'System error',
+                  'Other',
+                ].map((type) => (
+                  <label
+                    key={type}
+                    className="flex items-center space-x-2 cursor-pointer hover:bg-background p-2 rounded transition-colors"
+                  >
+                    <input
+                      type="checkbox"
+                      checked={formData.complaintTypes.includes(type)}
+                      onChange={() => toggleComplaintType(type)}
+                      className="h-4 w-4 rounded border-gray-300 text-primary focus:ring-primary"
+                    />
+                    <span className="text-sm">{type}</span>
+                  </label>
+                ))}
+              </div>
+              {formData.complaintTypes.length > 0 && (
+                <div className="mt-2 flex flex-wrap gap-2">
+                  <p className="text-xs text-muted-foreground w-full">Selected:</p>
+                  {formData.complaintTypes.map((type) => (
+                    <span
+                      key={type}
+                      className="inline-flex items-center gap-1 px-2 py-1 bg-primary/10 text-primary text-xs rounded-md"
+                    >
+                      {type}
+                      <button
+                        type="button"
+                        onClick={() => toggleComplaintType(type)}
+                        className="hover:bg-primary/20 rounded-full p-0.5"
+                      >
+                        <X className="h-3 w-3" />
+                      </button>
+                    </span>
+                  ))}
+                </div>
+              )}
             </div>
 
             {/* Context - Large Text Area */}
@@ -204,7 +245,7 @@ export function ComplaintWizard({ organizationId, userId }: ComplaintWizardProps
 
             <Button
               onClick={() => setStep(2)}
-              disabled={!formData.clientReference || !formData.hmrcDepartment || !formData.complaintType || !formData.complaintContext}
+              disabled={!formData.clientReference || !formData.hmrcDepartment || formData.complaintTypes.length === 0 || !formData.complaintContext}
               className="w-full"
             >
               Continue to Document Upload
