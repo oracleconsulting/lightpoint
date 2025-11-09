@@ -284,7 +284,7 @@ export const appRouter = router({
         threshold: z.number().optional(),
         limit: z.number().optional(),
       }))
-      .query(async ({ input }) => {
+      .mutation(async ({ input }) => {
         const results = await searchKnowledgeBase(
           input.query,
           input.threshold || 0.7,
