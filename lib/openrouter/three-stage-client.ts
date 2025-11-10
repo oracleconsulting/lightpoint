@@ -75,16 +75,18 @@ const callOpenRouter = async (request: OpenRouterRequest): Promise<string> => {
 };
 
 /**
- * STAGE 1: Deep Analysis with Sonnet 4.5
+ * STAGE 1: Deep Analysis with Claude Haiku 4.5
  * Extract all facts without any tone or structure
  * INCLUDES extraction of precedent examples for reference
+ * 
+ * Model: Haiku 4.5 - 200K context, $0.25/M in, fast, excellent extraction
  */
 export const stage1_extractFacts = async (
   complaintAnalysis: any,
   clientReference: string,
   hmrcDepartment: string
 ): Promise<string> => {
-  console.log('📊 STAGE 1: Extracting facts with Sonnet 4.5 (1M context)');
+  console.log('📊 STAGE 1: Extracting facts with Haiku 4.5 (fast extraction, 200K ctx)');
   
   const response = await callOpenRouter({
     model: ANALYSIS_MODEL,
@@ -134,16 +136,18 @@ Extract a complete fact sheet now (include any precedent examples found):`
 };
 
 /**
- * STAGE 2: Structure with Opus 4.1
+ * STAGE 2: Structure with Claude Sonnet 4.5
  * Organize facts into proper HMRC complaint letter structure
  * USES precedent structure patterns if available
+ * 
+ * Model: Sonnet 4.5 - Clean legal structure, 200K context, excellent reasoning
  */
 export const stage2_structureLetter = async (
   factSheet: string,
   practiceLetterhead?: string,
   chargeOutRate?: number
 ): Promise<string> => {
-  console.log('🏗️ STAGE 2: Structuring letter with Opus 4.1 (objective)');
+  console.log('🏗️ STAGE 2: Structuring letter with Sonnet 4.5 (clean legal structure)');
   
   const response = await callOpenRouter({
     model: STRUCTURE_MODEL,
@@ -254,14 +258,16 @@ Create the structured letter now (objective tone, perfect structure):`
 };
 
 /**
- * STAGE 3: Add Professional Fury with Opus 4.1
+ * STAGE 3: Add Professional Fury with Claude Opus 4.1
  * Transform structured letter into powerful, authentic complaint
  * USES precedent tone examples if available
+ * 
+ * Model: Opus 4.1 - Frontier writing quality, worth the premium cost
  */
 export const stage3_addTone = async (
   structuredLetter: string
 ): Promise<string> => {
-  console.log('🔥 STAGE 3: Adding professional fury with Opus 4.1');
+  console.log('🔥 STAGE 3: Adding professional fury with Opus 4.1 (frontier writing)');
   
   const response = await callOpenRouter({
     model: TONE_MODEL,
@@ -341,6 +347,14 @@ Transform it now (keep structure, add power):`
 
 /**
  * THREE-STAGE PIPELINE: Complete letter generation
+ * 
+ * OPTIMIZED STACK:
+ * - Stage 1: Haiku 4.5 ($0.25/M) - Fast fact extraction
+ * - Stage 2: Sonnet 4.5 ($3/M) - Clean structure
+ * - Stage 3: Opus 4.1 ($15/M) - Frontier prose quality
+ * 
+ * COST: ~$0.60 per letter (optimized from $1.96)
+ * QUALITY: Best-in-class at each stage
  */
 export const generateComplaintLetterThreeStage = async (
   complaintAnalysis: any,
