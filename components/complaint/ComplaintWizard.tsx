@@ -195,7 +195,7 @@ Don't worry about identifying specific Charter violations or complaint types - o
                 <input
                   type="file"
                   multiple
-                  accept=".pdf,.doc,.docx,.txt,.xls,.xlsx,.csv"
+                  accept=".pdf,.doc,.docx,.txt,.xls,.xlsx,.csv,.png,.jpg,.jpeg,.gif,.bmp,.tiff,.webp"
                   onChange={handleFileSelect}
                   className="hidden"
                   id="file-upload"
@@ -204,7 +204,7 @@ Don't worry about identifying specific Charter violations or complaint types - o
                   <Upload className="h-12 w-12 text-muted-foreground mx-auto mb-4" />
                   <p className="text-sm font-medium">Click to upload or drag and drop</p>
                   <p className="text-xs text-muted-foreground mt-1">
-                    PDF, DOC, DOCX, TXT, XLS, XLSX, CSV • Multiple files supported • Max 10MB per file
+                    PDF, Word, Excel, Text, Images (PNG, JPG, etc.) • Multiple files • Max 10MB per file
                   </p>
                 </label>
               </div>
