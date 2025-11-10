@@ -1,9 +1,17 @@
 import { supabaseAdmin } from '@/lib/supabase/client';
 import { generateEmbedding } from '@/lib/embeddings';
+import { cohereRerank, voyageRerank } from '@/lib/search/hybridSearch';
+
+// Reranking configuration
+const USE_RERANKING = true;  // Always use reranking for quality
+const RERANKER = process.env.COHERE_API_KEY ? 'cohere' : 
+                 process.env.VOYAGE_API_KEY ? 'voyage' : 
+                 'none';
 
 /**
  * Multi-angle vector search in knowledge base
  * Performs multiple searches from different angles to ensure comprehensive coverage
+ * NOW WITH RERANKING for maximum precision!
  */
 export const searchKnowledgeBaseMultiAngle = async (
   queryText: string,
@@ -11,22 +19,46 @@ export const searchKnowledgeBaseMultiAngle = async (
   matchCount: number = 10
 ) => {
   try {
-    console.log('🔍 Starting multi-angle knowledge base search...');
+    console.log('🔍 Starting multi-angle knowledge base search with reranking...');
     
     // Extract key components for targeted searches
     const searchQueries = generateSearchQueries(queryText);
     
     console.log(`📊 Generated ${searchQueries.length} search angles:`, searchQueries);
     
+    // Get MORE candidates for reranking (3x the final count)
+    const candidateCount = matchCount * 3;
+    
     // Perform all searches in parallel
     const allResults = await Promise.all(
-      searchQueries.map(query => searchKnowledgeBase(query, threshold, matchCount))
+      searchQueries.map(query => searchKnowledgeBase(query, threshold, candidateCount))
     );
     
     // Combine and deduplicate results
-    const combinedResults = deduplicateResults(allResults.flat());
+    let combinedResults = deduplicateResults(allResults.flat());
     
-    console.log(`✅ Multi-angle search found ${combinedResults.length} unique results`);
+    console.log(`📦 Multi-angle search found ${combinedResults.length} candidates`);
+    
+    // RERANK for precision
+    if (USE_RERANKING && combinedResults.length > matchCount) {
+      console.log(`🎯 Reranking with ${RERANKER}...`);
+      
+      const documentsToRerank = combinedResults.map(r => ({
+        id: r.id,
+        content: `${r.title || ''}\n${r.content || ''}`
+      }));
+      
+      if (RERANKER === 'cohere') {
+        combinedResults = await cohereRerank(queryText, documentsToRerank, matchCount);
+      } else if (RERANKER === 'voyage') {
+        combinedResults = await voyageRerank(queryText, documentsToRerank, matchCount);
+      } else {
+        console.log('⚠️  No reranker API key set, using vector scores only');
+        combinedResults = combinedResults.slice(0, matchCount);
+      }
+      
+      console.log(`✅ Reranked to top ${combinedResults.length} results`);
+    }
     
     return combinedResults;
   } catch (error) {
@@ -134,6 +166,7 @@ export const searchKnowledgeBase = async (
 
 /**
  * Vector search in precedents
+ * NOW WITH RERANKING - precedent accuracy is CRITICAL for letter quality!
  */
 export const searchPrecedents = async (
   queryText: string,
@@ -141,6 +174,11 @@ export const searchPrecedents = async (
   matchCount: number = 5
 ) => {
   try {
+    console.log('📚 Searching precedents with reranking...');
+    
+    // Get 3x candidates for reranking
+    const candidateCount = matchCount * 3;
+    
     // Generate embedding for query
     const embedding = await generateEmbedding(queryText);
     
@@ -148,12 +186,35 @@ export const searchPrecedents = async (
     const { data, error } = await (supabaseAdmin as any).rpc('match_precedents', {
       query_embedding: embedding,
       match_threshold: threshold,
-      match_count: matchCount,
+      match_count: candidateCount,
     });
     
     if (error) throw error;
     
-    return data || [];
+    let results = data || [];
+    
+    // RERANK precedents for maximum accuracy
+    if (USE_RERANKING && results.length > matchCount) {
+      console.log(`🎯 Reranking ${results.length} precedents with ${RERANKER}...`);
+      
+      const documentsToRerank = results.map((r: any) => ({
+        id: r.id,
+        content: `${r.title || ''}\n${r.letter_content || r.content || ''}`
+      }));
+      
+      if (RERANKER === 'cohere') {
+        results = await cohereRerank(queryText, documentsToRerank, matchCount);
+      } else if (RERANKER === 'voyage') {
+        results = await voyageRerank(queryText, documentsToRerank, matchCount);
+      } else {
+        console.log('⚠️  No reranker API key set, using vector scores only');
+        results = results.slice(0, matchCount);
+      }
+      
+      console.log(`✅ Reranked to top ${results.length} precedents`);
+    }
+    
+    return results;
   } catch (error) {
     console.error('Precedents search error:', error);
     throw new Error('Failed to search precedents');
