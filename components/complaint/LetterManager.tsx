@@ -10,14 +10,16 @@ import { Badge } from '@/components/ui/badge';
 import { trpc } from '@/lib/trpc/Provider';
 import { Save, Lock, Send, FileText, CheckCircle2, Clock } from 'lucide-react';
 import { format } from 'date-fns';
+import { FormattedLetter } from './FormattedLetter';
 
 interface LetterManagerProps {
   complaintId: string;
   generatedLetter?: string;
+  clientReference?: string;
   onLetterSaved?: () => void;
 }
 
-export function LetterManager({ complaintId, generatedLetter, onLetterSaved }: LetterManagerProps) {
+export function LetterManager({ complaintId, generatedLetter, clientReference, onLetterSaved }: LetterManagerProps) {
   const [showSendDialog, setShowSendDialog] = useState(false);
   const [selectedLetter, setSelectedLetter] = useState<any>(null);
   const [sendForm, setSendForm] = useState({
@@ -88,7 +90,7 @@ export function LetterManager({ complaintId, generatedLetter, onLetterSaved }: L
 
   return (
     <div className="space-y-6">
-      {/* Save current generated letter */}
+      {/* Display current generated letter with formatting */}
       {generatedLetter && (
         <Card className="border-green-200 bg-green-50">
           <CardHeader>
@@ -97,13 +99,23 @@ export function LetterManager({ complaintId, generatedLetter, onLetterSaved }: L
               Current Generated Letter
             </CardTitle>
           </CardHeader>
-          <CardContent>
-            <p className="text-sm text-muted-foreground mb-4">
-              This letter will be lost if you refresh the page. Save it to keep it permanently.
-            </p>
-            <Button onClick={handleSaveLetter} disabled={saveLetter.isLoading} className="gap-2">
+          <CardContent className="space-y-4">
+            <div className="bg-yellow-50 border border-yellow-200 rounded-lg p-3 flex items-start gap-2">
+              <Clock className="h-5 w-5 text-yellow-600 mt-0.5" />
+              <div className="text-sm">
+                <p className="font-medium text-yellow-900">Not saved yet</p>
+                <p className="text-yellow-700">This letter will be lost if you refresh the page. Save it to keep it permanently.</p>
+              </div>
+            </div>
+
+            <FormattedLetter 
+              content={generatedLetter} 
+              clientReference={clientReference || complaintId}
+            />
+
+            <Button onClick={handleSaveLetter} disabled={saveLetter.isLoading} className="gap-2 w-full">
               <Save className="h-4 w-4" />
-              Save Letter
+              Save Letter to Database
             </Button>
           </CardContent>
         </Card>
@@ -199,9 +211,12 @@ export function LetterManager({ complaintId, generatedLetter, onLetterSaved }: L
                     <summary className="cursor-pointer text-blue-600 hover:text-blue-800">
                       View letter content
                     </summary>
-                    <pre className="mt-2 whitespace-pre-wrap font-sans bg-gray-50 p-4 rounded border text-xs max-h-96 overflow-y-auto">
-                      {letter.letter_content}
-                    </pre>
+                    <div className="mt-3">
+                      <FormattedLetter 
+                        content={letter.letter_content} 
+                        clientReference={clientReference || complaintId}
+                      />
+                    </div>
                   </details>
                 </div>
               ))}

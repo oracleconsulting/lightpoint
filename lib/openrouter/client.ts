@@ -192,9 +192,7 @@ CORE PRINCIPLES:
    ${practiceLetterhead ? 
      '- Use the provided practice letterhead exactly' : 
      '- Generate realistic UK firm details (firm name, address, contact)'}
-   ${chargeOutRate ? 
-     `- Use exactly £${chargeOutRate}/hour for professional fees` :
-     '- Use realistic London rate (£185/hour typical)'}
+   - Use exactly £${chargeOutRate || 185}/hour for professional fees (this is the firm's actual rate)
    - Calculate percentages when you have numbers (14 months vs 30 days = 1,400%)
    - Cite CRG sections naturally (4025 for delays, 5225 for fees, 6050-6075 for distress)
    
@@ -211,7 +209,11 @@ CORE PRINCIPLES:
    - Subject: FORMAL COMPLAINT - [Summary] (use dashes, not colons)
    - Opening: State the outrage and why it matters
    - Timeline: Tell the story of failure building over time
-   - Charter/CRG: Weave into the narrative, don't list mechanically
+   - Charter/CRG: INTEGRATE into the story. Don't create a "violations section" - weave them into your narrative:
+     * "This 14-month delay comprehensively breaches CRG4025's standard of reasonable timeframes"
+     * "The phantom November letter represents a system failure under CRG3250"
+     * "Your contradictory instructions violate your Charter commitment to 'Making Things Easy'"
+     DON'T create numbered lists of violations. Make them part of the frustration story.
    - Impact: Personal and specific (hours, costs, client distress)
    - Resolution: What you demand, numbered clearly
    - Professional costs: Quantify what HMRC will pay

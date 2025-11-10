@@ -190,6 +190,7 @@ export default function ComplaintDetailPage({ params }: { params: { id: string }
                 <LetterPreview letter={generatedLetter} />
                 <LetterManager 
                   complaintId={params.id}
+                  clientReference={complaintData.complaint_reference}
                   generatedLetter={generatedLetter}
                   onLetterSaved={() => setGeneratedLetter(null)}
                 />
@@ -198,7 +199,10 @@ export default function ComplaintDetailPage({ params }: { params: { id: string }
 
             {/* Always show saved letters */}
             {!generatedLetter && (
-              <LetterManager complaintId={params.id} />
+              <LetterManager 
+                complaintId={params.id} 
+                clientReference={complaintData.complaint_reference}
+              />
             )}
 
             <TimelineView events={complaintData.timeline || []} />
