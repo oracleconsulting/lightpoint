@@ -20,9 +20,26 @@ export function DocumentUploader({ complaintId, onUploadComplete }: DocumentUplo
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const selectedFile = e.target.files?.[0];
     if (selectedFile) {
-      // Validate file type
-      if (selectedFile.type !== 'application/pdf') {
-        setError('Only PDF files are supported');
+      // Validate file type (allow documents and images)
+      const allowedTypes = [
+        'application/pdf',
+        'application/msword',
+        'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
+        'application/vnd.ms-excel',
+        'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
+        'text/plain',
+        'text/csv',
+        'image/png',
+        'image/jpeg',
+        'image/jpg',
+        'image/gif',
+        'image/bmp',
+        'image/tiff',
+        'image/webp'
+      ];
+      
+      if (!allowedTypes.includes(selectedFile.type)) {
+        setError('File type not supported. Please upload PDF, Word, Excel, Text, or Image files.');
         return;
       }
       
@@ -77,7 +94,7 @@ export function DocumentUploader({ complaintId, onUploadComplete }: DocumentUplo
       <CardHeader>
         <CardTitle>Upload Document</CardTitle>
         <CardDescription>
-          Upload HMRC letters, evidence, or other supporting documents (PDF only)
+          Upload HMRC letters, evidence, or other supporting documents (PDF, Word, Excel, Images)
         </CardDescription>
       </CardHeader>
       <CardContent>
@@ -85,7 +102,7 @@ export function DocumentUploader({ complaintId, onUploadComplete }: DocumentUplo
           <div className="flex items-center gap-4">
             <Input
               type="file"
-              accept=".pdf,.doc,.docx,.txt,.xls,.xlsx,.csv"
+              accept=".pdf,.doc,.docx,.txt,.xls,.xlsx,.csv,.png,.jpg,.jpeg,.gif,.bmp,.tiff,.webp"
               onChange={handleFileChange}
               disabled={uploading}
               className="flex-1"

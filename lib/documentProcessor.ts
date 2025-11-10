@@ -8,6 +8,101 @@ import pdfParse from 'pdf-parse';
 import mammoth from 'mammoth';
 import * as XLSX from 'xlsx';
 
+/**
+ * Extract text from image using GPT-4 Vision (Claude Vision not available via OpenRouter yet)
+ */
+const extractTextFromImage = async (imageBuffer: Buffer): Promise<string> => {
+  try {
+    const apiKey = process.env.OPENROUTER_API_KEY;
+    
+    if (!apiKey) {
+      throw new Error('OPENROUTER_API_KEY not configured');
+    }
+    
+    // Convert image to base64
+    const base64Image = imageBuffer.toString('base64');
+    const mimeType = detectImageMimeType(imageBuffer);
+    
+    console.log(`🔍 Performing OCR on image (${mimeType})...`);
+    
+    // Use GPT-4 Vision for OCR via OpenRouter
+    const response = await fetch('https://openrouter.ai/api/v1/chat/completions', {
+      method: 'POST',
+      headers: {
+        'Authorization': `Bearer ${apiKey}`,
+        'Content-Type': 'application/json',
+        'HTTP-Referer': 'https://lightpoint.app',
+        'X-Title': 'Lightpoint HMRC Complaint System',
+      },
+      body: JSON.stringify({
+        model: 'openai/gpt-4o',  // GPT-4o has vision capabilities
+        messages: [
+          {
+            role: 'user',
+            content: [
+              {
+                type: 'text',
+                text: 'Extract ALL text from this image. This is an HMRC document. Preserve formatting, dates, reference numbers, amounts, and all details exactly as shown. Return ONLY the extracted text, no explanations.'
+              },
+              {
+                type: 'image_url',
+                image_url: {
+                  url: `data:${mimeType};base64,${base64Image}`
+                }
+              }
+            ]
+          }
+        ],
+        max_tokens: 4000,
+        temperature: 0.1  // Low temperature for accurate OCR
+      }),
+    });
+    
+    if (!response.ok) {
+      const error = await response.text();
+      throw new Error(`OCR API error: ${response.status} - ${error}`);
+    }
+    
+    const data = await response.json();
+    const extractedText = data.choices[0].message.content;
+    
+    console.log(`✅ OCR extracted ${extractedText.length} characters from image`);
+    
+    return extractedText;
+  } catch (error: any) {
+    console.error('❌ Image OCR failed:', error.message);
+    return `[OCR failed for image: ${error.message}. Image stored for manual review.]`;
+  }
+};
+
+/**
+ * Detect image MIME type from buffer
+ */
+const detectImageMimeType = (buffer: Buffer): string => {
+  // Check magic numbers (file signatures)
+  if (buffer[0] === 0x89 && buffer[1] === 0x50 && buffer[2] === 0x4E && buffer[3] === 0x47) {
+    return 'image/png';
+  }
+  if (buffer[0] === 0xFF && buffer[1] === 0xD8 && buffer[2] === 0xFF) {
+    return 'image/jpeg';
+  }
+  if (buffer[0] === 0x47 && buffer[1] === 0x49 && buffer[2] === 0x46) {
+    return 'image/gif';
+  }
+  if (buffer[0] === 0x42 && buffer[1] === 0x4D) {
+    return 'image/bmp';
+  }
+  if ((buffer[0] === 0x49 && buffer[1] === 0x49) || (buffer[0] === 0x4D && buffer[1] === 0x4D)) {
+    return 'image/tiff';
+  }
+  if (buffer[0] === 0x52 && buffer[1] === 0x49 && buffer[2] === 0x46 && buffer[3] === 0x46) {
+    return 'image/webp';
+  }
+  
+  // Default to PNG if unknown
+  return 'image/png';
+};
+
 export interface ProcessedDocument {
   id: string;
   complaint_id: string;
@@ -17,7 +112,7 @@ export interface ProcessedDocument {
 }
 
 /**
- * Extract text from various file formats
+ * Extract text from various file formats including images with OCR
  */
 const extractTextFromFile = async (fileBuffer: Buffer, fileName: string): Promise<string> => {
   const fileExtension = fileName.toLowerCase().split('.').pop();
@@ -57,6 +152,16 @@ const extractTextFromFile = async (fileBuffer: Buffer, fileName: string): Promis
         
         return allText;
       
+      case 'png':
+      case 'jpg':
+      case 'jpeg':
+      case 'gif':
+      case 'bmp':
+      case 'tiff':
+      case 'webp':
+        console.log('🖼️ Extracting text from image using OCR...');
+        return await extractTextFromImage(fileBuffer);
+      
       default:
         console.warn(`⚠️ Unsupported file type: .${fileExtension}`);
         return `[Text extraction not supported for .${fileExtension} files - file stored for manual review]`;
@@ -68,7 +173,7 @@ const extractTextFromFile = async (fileBuffer: Buffer, fileName: string): Promis
 };
 
 /**
- * Process uploaded document - supports PDF, DOCX, DOC, TXT, XLS, XLSX, CSV
+ * Process uploaded document - supports PDF, DOCX, DOC, TXT, XLS, XLSX, CSV, PNG, JPG, etc.
  */
 export const processDocument = async (
   fileBuffer: Buffer,
