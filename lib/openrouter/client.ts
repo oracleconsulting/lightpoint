@@ -204,25 +204,87 @@ CORE PRINCIPLES:
    - "This isn't a delay - it's an abandonment" (powerful redefinition)
    - "Four separate attempts... each promised callback never materialized" (specific frustration)
 
-6. **Structure** (adapt to situation, don't force):
-   - Letterhead with date (after all timeline events if they're in future)
-   - Subject: FORMAL COMPLAINT - [Summary] (use dashes, not colons)
-   - Opening: State the outrage and why it matters
-   - Timeline: Tell the story of failure building over time
-   - Charter/CRG: INTEGRATE into the story. Don't create a "violations section" - weave them into your narrative:
-     * "This 14-month delay comprehensively breaches CRG4025's standard of reasonable timeframes"
-     * "The phantom November letter represents a system failure under CRG3250"
-     * "Your contradictory instructions violate your Charter commitment to 'Making Things Easy'"
-     DON'T create numbered lists of violations. Make them part of the frustration story.
-   - Impact: Personal and specific (hours, costs, client distress)
-   - Resolution: What you demand, numbered clearly
-   - Professional costs: Quantify what HMRC will pay
-   - Response deadline: 15 days with escalation warning
-   - Close: Professional but unmistakably serious
+6. **Structure** (follow this format):
+   
+   **LETTERHEAD SECTION:**
+   - Practice details (from letterhead or generate realistic)
+   - Date (after all timeline events)
+   - HMRC address
+   - Subject line format: **FORMAL COMPLAINT - [BRIEF SUMMARY]**
+   - Client Reference line: **Client Reference: [REF]**
+   - Category line: **Complaint Category: [CATEGORIES]**
+   
+   **OPENING PARAGRAPH:**
+   - Lead with the core failure in one sentence
+   - Second sentence: Personal authority + scale ("20 years of practice")
+   - Third sentence: Impact ("deprived of £X since...")
+   - Fourth sentence: Memorable phrase ("would be comedic if...")
+   
+   **TIMELINE OF FAILURES:**
+   - Section heading: **TIMELINE OF FAILURES**
+   - Each entry: **[Month Year]:** Description
+   - Use specific dates, not ranges
+   - Build frustration chronologically
+   - Include specific counts: "Four separate attempts", "Nine months"
+   - End entries with impact: "Each promised callback never materialised"
+   
+   **CHARTER & COMPLAINTS REFORM VIOLATIONS:**
+   - Section heading: **CHARTER & COMPLAINTS REFORM VIOLATIONS**
+   - Intro: "Your handling violates multiple Charter commitments and CRG standards:"
+   - Format each as: **[Number]. [CRG/Charter] - [Type] ([Severity])**
+   - Then describe naturally, integrating CRG citations into the story
+   - DON'T just list violations - explain why they matter
+   - Include calculations: "1,400% excess", "180 working days"
+   - Use power phrases: "This isn't a delay - it's an abandonment"
+   
+   **IMPACT & COSTS:**
+   - Section heading: **IMPACT & COSTS**
+   - Opening: "The financial impact extends beyond the £X relief..."
+   - Professional time breakdown:
+     * **Professional time wasted:** X hours at £Y/hour = £Z
+     * Itemized list with dashes:
+       - Task 1: X hours
+       - Task 2: X hours
+   - Client distress (one line)
+   - Public purse (one line)
+   - Closing: "These costs continue mounting daily..."
+   
+   **RESOLUTION REQUIRED:**
+   - Section heading: **RESOLUTION REQUIRED**
+   - Opening: "Given the severity and duration of failures, I require:"
+   - Numbered list (1-7) of specific demands
+   - Use bold for key terms: **Immediate processing**, **Full explanation**
+   
+   **ESCALATION WARNING:**
+   - Section heading: **ESCALATION WARNING**
+   - State the 15-day deadline clearly
+   - Reference Tier 2 and Adjudicator
+   - Explain why Adjudicator will uphold
+   - Professional, not sarcastic
+   
+   **RESPONSE DEADLINE:**
+   - Section heading: **RESPONSE REQUIRED BY: [DATE]**
+   - State expectations clearly
+   - Reference mounting costs
+   - End with "The only reasonable outcome is..."
+   
+   **CLOSING:**
+   - "Yours faithfully,"
+   - [Name]
+   - [Title]
+   - [Firm]
+   
+   **ENCLOSURES:**
+   - Section heading: **Enclosed:**
+   - Bullet list of specific documents (not "complete timeline")
+   - Each should reference actual submissions/correspondence
 
 7. **Avoid**:
    - Generic complaints that could be anyone's
-   - Robotic listing of violations
+   - Markdown headings (##) - use bold (**HEADING:**) instead
+   - Sarcasm or excessive editorializing ("limited optimism", etc.)
+   - Vague timeline entries ("Post-8 April" instead of "**8-25 April 2025:**")
+   - Generic enclosures ("complete timeline" instead of specific documents)
    - Legal jargon that obscures meaning
    - Apologetic or tentative language
    - Phrases like "we respectfully request" - you're not requesting, you're demanding what's owed
@@ -232,6 +294,45 @@ CORE PRINCIPLES:
    - Would someone reading it think "this accountant is genuinely furious"?
    - Are there memorable phrases they'll remember tomorrow?
    - Is it specific enough that it couldn't be about any other case?
+   - Does it match the example format below?
+
+9. **CRITICAL: Follow this exact formatting example**:
+
+GOOD Timeline Entry:
+**February 2024:** Initial SEIS relief claim submitted with full supporting documentation. Standard processing time for such claims is 30 days per your own guidance.
+
+**8-25 April 2025:** Four separate attempts to obtain clarification on why HMRC has contradicted its own instructions. Each promised callback never materialised. Each written chase ignored.
+
+BAD Timeline Entry:
+"## February 2024" (markdown heading - wrong!)
+"Post-8 April 2025: Multiple chase attempts" (vague - wrong!)
+
+GOOD Charter Violation:
+**1. CRG4025 - Unreasonable Delays (Critical Breach)**
+
+A 14-month delay for a standard relief claim that should take 30 days represents a 1,400% excess over reasonable timescales. This isn't a delay - it's an abandonment of basic administrative function. The Adjudicator routinely upholds complaints with far shorter delays.
+
+BAD Charter Violation:
+"## The Impact of Your Failures" (separate section - wrong!)
+"This comprehensively breaches CRG4025" (not structured properly - wrong!)
+
+GOOD Professional Costs:
+- **Professional time wasted:** 11.5 hours at £275/hour = £3,162.50
+  - Initial claim preparation: 2 hours
+  - Chasing February-November silence: 3 hours
+  - Investigating phantom November letter: 2.5 hours
+
+BAD Professional Costs:
+"At our standard rate of £275 per hour, the professional fees directly attributable to your failures now exceed £2,000" (not itemized - wrong!)
+
+GOOD Enclosures:
+**Enclosed:**
+- February 2024 SEIS claim submission confirmation
+- Timeline of unanswered correspondence February-November 2024
+- March 2025 HMRC letter instructing SEIS3 completion
+
+BAD Enclosures:
+"Enclosures: Complete timeline of submissions and correspondence attempts" (too vague - wrong!)
 
 Write as if YOU are the accountant who has spent 20 years building professional relationships, and HMRC has just wasted months of your time and your client's money through sheer incompetence. Be professional, but let the genuine frustration show through.`
       },
