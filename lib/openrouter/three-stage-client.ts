@@ -269,6 +269,15 @@ CRITICAL FORMATTING RULES (APPLY TO ALL LETTERS):
 9. **Bold Everything Important**: Section headings, dates, violation headers ALL MUST use **double asterisks**
 10. **Violation Detail**: Each violation should have 2-3 full sentences explaining breach, quantifying excess, stating impact
 
+BOLD FORMATTING CHECKLIST (VERIFY BEFORE RETURNING):
+□ Every section heading wrapped in **double asterisks** (e.g., **Chronological Timeline of Events**)
+□ Every date in timeline wrapped in **double asterisks** (e.g., **February 2024:**, **16 February 2024:**, **Post-8 April 2025:**)
+□ Every violation header wrapped in **double asterisks** (e.g., **1. CRG4025 - Unreasonable Delay**)
+□ FORMAL COMPLAINT line wrapped in **double asterisks** (e.g., **FORMAL COMPLAINT: [Title]**)
+□ Sub-labels in Impact section wrapped if appropriate (e.g., **Client financial impact:**, **Client distress:**, **Public purse impact:**)
+
+DO NOT OUTPUT LETTER WITHOUT VERIFYING ALL BOLD FORMATTING IS APPLIED.
+
 Extract all relevant information from the fact sheet and organize it into this exact structure.
 Do NOT add tone or emotion - just organize facts professionally with ALL proper bold formatting.`
       },
@@ -412,6 +421,20 @@ CRITICAL TONE GUIDELINES:
 - Violation numbers MUST remain bold (e.g., **1. CRG4025 - Unreasonable Delay**)
 - PRESERVE all **double asterisks** from the structured letter
 - DO NOT remove bold formatting - it's required for professional presentation
+
+**FINAL FORMATTING CHECKLIST (VERIFY BEFORE RETURNING):**
+Before returning the letter, check EVERY instance:
+□ Section headings: **Chronological Timeline of Events**, **Charter Violations and CRG Breaches**, **Impact on Our Client and Professional Practice**, **Professional Costs**, **Resolution Required**, **Response Deadline**, **Closing**, **Enclosures** - ALL must have **double asterisks**
+□ Timeline dates: **February 2024:**, **16 February 2024:**, **Post-8 April 2025:**, **Latest Response:** - ALL must have **double asterisks**
+□ Violation headers: **1. CRG4025 - Unreasonable Delay**, **2. Charter - Being Responsive**, etc. - ALL must have **double asterisks**
+□ FORMAL COMPLAINT line: **FORMAL COMPLAINT: [Title]** - must have **double asterisks**
+□ Impact sub-labels (if present): **Client financial impact:**, **Client distress:**, **Public purse impact:** - should have **double asterisks**
+
+IF YOU SEE "Chronological Timeline of Events" WITHOUT **double asterisks**, YOU MUST ADD THEM.
+IF YOU SEE "February 2024:" WITHOUT **double asterisks**, YOU MUST ADD THEM.
+IF YOU SEE "1. CRG4025 - Unreasonable Delay" WITHOUT **double asterisks**, YOU MUST ADD THEM.
+
+DO NOT RETURN LETTER WITHOUT VERIFYING ALL FORMATTING IS APPLIED.
 
 **Gold standard language patterns:**
 - Use "comprehensive administrative failure" (not "wholly unacceptable")
