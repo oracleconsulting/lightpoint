@@ -151,12 +151,12 @@ export const stage2_structureLetter = async (
 ): Promise<string> => {
   console.log('🏗️ STAGE 2: Structuring letter with Sonnet 4.5 (professional structure)');
   
-  const response = await callOpenRouter({
-    model: STRUCTURE_MODEL,
-    messages: [
-      {
-        role: 'system',
-        content: `You are organizing facts into a formal HMRC complaint letter structure following UK professional standards.
+      const response = await callOpenRouter({
+        model: STRUCTURE_MODEL,
+        messages: [
+          {
+            role: 'system',
+            content: `You are organizing facts into a formal HMRC complaint letter structure following UK professional standards.
 
 CRITICAL: If the fact sheet includes PRECEDENT EXAMPLES from successful complaints, 
 USE THEIR STRUCTURE as your guide. Copy the way they:
@@ -269,32 +269,44 @@ CRITICAL FORMATTING RULES (APPLY TO ALL LETTERS):
 9. **Bold Everything Important**: Section headings, dates, violation headers ALL MUST use **double asterisks**
 10. **Violation Detail**: Each violation should have 2-3 full sentences explaining breach, quantifying excess, stating impact
 
-BOLD FORMATTING CHECKLIST (VERIFY BEFORE RETURNING):
-□ Every section heading wrapped in **double asterisks** (e.g., **Chronological Timeline of Events**)
-□ Every date in timeline wrapped in **double asterisks** (e.g., **February 2024:**, **16 February 2024:**, **Post-8 April 2025:**)
-□ Every violation header wrapped in **double asterisks** (e.g., **1. CRG4025 - Unreasonable Delay**)
-□ FORMAL COMPLAINT line wrapped in **double asterisks** (e.g., **FORMAL COMPLAINT: [Title]**)
-□ Sub-labels in Impact section wrapped if appropriate (e.g., **Client financial impact:**, **Client distress:**, **Public purse impact:**)
+MANDATORY BOLD FORMATTING - NON-NEGOTIABLE:
 
-DO NOT OUTPUT LETTER WITHOUT VERIFYING ALL BOLD FORMATTING IS APPLIED.
+YOU MUST APPLY **DOUBLE ASTERISKS** TO EVERY:
+1. Section heading (e.g., **Chronological Timeline of Events** NOT "Chronological Timeline of Events")
+2. Timeline date (e.g., **February 2024:** NOT "February 2024:")
+3. Violation header (e.g., **1. CRG4025 - Unreasonable Delay** NOT "1. CRG4025 - Unreasonable Delay")
+4. FORMAL COMPLAINT line (e.g., **FORMAL COMPLAINT: [Title]** NOT "FORMAL COMPLAINT: [Title]")
+
+CRITICAL: If you return a letter with "Chronological Timeline of Events" instead of "**Chronological Timeline of Events**", you have FAILED the task.
+CRITICAL: If you return a letter with "February 2024:" instead of "**February 2024:**", you have FAILED the task.
+CRITICAL: If you return a letter with "1. CRG4025 - Unreasonable Delay" instead of "**1. CRG4025 - Unreasonable Delay**", you have FAILED the task.
+
+LANGUAGE REFINEMENTS:
+- Use "14-month" NOT "14+ month"
+- Use "demonstrates systematic failure" NOT "represents a comprehensive failure" (though both are acceptable)
+- Use "neither our firm nor our client received" NOT "was never received by our client or our firm"
+
+DO NOT RETURN THE LETTER UNTIL EVERY SECTION HEADING, DATE, AND VIOLATION HAS **DOUBLE ASTERISKS**.
 
 Extract all relevant information from the fact sheet and organize it into this exact structure.
 Do NOT add tone or emotion - just organize facts professionally with ALL proper bold formatting.`
-      },
-      {
-        role: 'user',
-        content: `Organize these facts into the professional complaint letter structure:
+          },
+          {
+            role: 'user',
+            content: `Organize these facts into the professional complaint letter structure:
 
 ${factSheet}
 
 ${chargeOutRate ? `\nCharge-out rate: £${chargeOutRate}/hour\n` : ''}
 
-Create the structured letter now (facts only, no tone yet):`
-      }
-    ],
-    temperature: 0.3,
-    max_tokens: 3000,
-  });
+Create the structured letter now (facts only, no tone yet).
+
+REMINDER: Every section heading, timeline date, and violation header MUST have **double asterisks**:`
+          }
+        ],
+        temperature: 0.2, // Lower temperature for more consistent formatting compliance
+        max_tokens: 3000,
+      });
 
   return response;
 };
@@ -314,12 +326,12 @@ export const stage3_addTone = async (
 ): Promise<string> => {
   console.log('✍️ STAGE 3: Adding professional tone with Opus 4.1 (measured, firm)');
   
-  const response = await callOpenRouter({
-    model: TONE_MODEL,
-    messages: [
-      {
-        role: 'system',
-        content: `You are transforming a structured complaint letter into professional, firm language suitable for an HMRC complaint.
+      const response = await callOpenRouter({
+        model: TONE_MODEL,
+        messages: [
+          {
+            role: 'system',
+            content: `You are transforming a structured complaint letter into professional, firm language suitable for an HMRC complaint.
 
 CRITICAL TONE GUIDELINES:
 
@@ -422,19 +434,28 @@ CRITICAL TONE GUIDELINES:
 - PRESERVE all **double asterisks** from the structured letter
 - DO NOT remove bold formatting - it's required for professional presentation
 
-**FINAL FORMATTING CHECKLIST (VERIFY BEFORE RETURNING):**
-Before returning the letter, check EVERY instance:
-□ Section headings: **Chronological Timeline of Events**, **Charter Violations and CRG Breaches**, **Impact on Our Client and Professional Practice**, **Professional Costs**, **Resolution Required**, **Response Deadline**, **Closing**, **Enclosures** - ALL must have **double asterisks**
-□ Timeline dates: **February 2024:**, **16 February 2024:**, **Post-8 April 2025:**, **Latest Response:** - ALL must have **double asterisks**
-□ Violation headers: **1. CRG4025 - Unreasonable Delay**, **2. Charter - Being Responsive**, etc. - ALL must have **double asterisks**
-□ FORMAL COMPLAINT line: **FORMAL COMPLAINT: [Title]** - must have **double asterisks**
-□ Impact sub-labels (if present): **Client financial impact:**, **Client distress:**, **Public purse impact:** - should have **double asterisks**
+**MANDATORY FORMATTING - YOU WILL BE SCORED ON THIS:**
 
-IF YOU SEE "Chronological Timeline of Events" WITHOUT **double asterisks**, YOU MUST ADD THEM.
-IF YOU SEE "February 2024:" WITHOUT **double asterisks**, YOU MUST ADD THEM.
-IF YOU SEE "1. CRG4025 - Unreasonable Delay" WITHOUT **double asterisks**, YOU MUST ADD THEM.
+Before returning, verify EVERY instance has **double asterisks**:
+✓ Section headings: **Chronological Timeline of Events** (NOT without asterisks)
+✓ Timeline dates: **February 2024:**, **16 February 2024:** (NOT without asterisks)
+✓ Violation headers: **1. CRG4025 - Unreasonable Delay** (NOT without asterisks)
+✓ FORMAL COMPLAINT: **FORMAL COMPLAINT: [Title]** (NOT without asterisks)
 
-DO NOT RETURN LETTER WITHOUT VERIFYING ALL FORMATTING IS APPLIED.
+CRITICAL FAILURES (These will cause the letter to be REJECTED):
+❌ Returning "Chronological Timeline of Events" without **double asterisks**
+❌ Returning "February 2024:" without **double asterisks**
+❌ Returning "1. CRG4025 - Unreasonable Delay" without **double asterisks**
+
+IF YOU SEE ANY HEADING, DATE, OR VIOLATION WITHOUT **DOUBLE ASTERISKS**, YOU MUST ADD THEM NOW.
+
+LANGUAGE POLISH:
+- Use "14-month" NOT "14+ month" or "14+ Month"
+- Use "demonstrates systematic failure" for stronger impact
+- Use "neither our firm nor our client received" for better flow
+- Replace "was never received" with "neither X nor Y received"
+
+DO NOT RETURN THIS LETTER UNTIL YOU HAVE VERIFIED EVERY HEADING, DATE, AND VIOLATION HAS **DOUBLE ASTERISKS**.
 
 **Gold standard language patterns:**
 - Use "comprehensive administrative failure" (not "wholly unacceptable")
@@ -444,22 +465,24 @@ DO NOT RETURN LETTER WITHOUT VERIFYING ALL FORMATTING IS APPLIED.
 - Balance firmness with professionalism throughout
 
 **Temperature calibration:**
-This prompt uses temperature 0.4 for consistent professional output (not 0.7).
+This prompt uses temperature 0.3 for consistent professional output and formatting compliance.
 
 Transform the structured letter into a firm, professional complaint that demonstrates clear failures without aggressive language, preserving ALL bold formatting exactly as provided.`
-      },
-      {
-        role: 'user',
-        content: `Add professional, measured tone to this structured letter:
+          },
+          {
+            role: 'user',
+            content: `Add professional, measured tone to this structured letter:
 
 ${structuredLetter}
 
-Transform it now (firm but professional, organizational voice, no "I"):`
-      }
-    ],
-    temperature: 0.4, // Lower temperature for consistent professional output
-    max_tokens: 4000,
-  });
+Transform it now (firm but professional, organizational voice, no "I").
+
+CRITICAL REMINDER: Verify ALL section headings, dates, and violation headers have **double asterisks** before returning:`
+          }
+        ],
+        temperature: 0.3, // Lower temperature for consistent formatting compliance
+        max_tokens: 4000,
+      });
 
   return response;
 };
