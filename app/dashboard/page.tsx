@@ -5,15 +5,41 @@ import { Card, CardHeader, CardTitle, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import Link from 'next/link';
-import { Plus, FileText, AlertCircle, CheckCircle, TrendingUp, Clock, Building2 } from 'lucide-react';
+import { Plus, FileText, AlertCircle, CheckCircle, TrendingUp, Clock, Building2, Trash2 } from 'lucide-react';
+import { useState } from 'react';
 
 // Mock data for demo - replace with actual auth
 const MOCK_ORGANIZATION_ID = '00000000-0000-0000-0000-000000000001';
 
 export default function DashboardPage() {
+  const [deletingId, setDeletingId] = useState<string | null>(null);
+  
+  const utils = trpc.useUtils();
   const { data: complaints, isLoading, error } = trpc.complaints.list.useQuery({
     organizationId: MOCK_ORGANIZATION_ID,
   });
+
+  const deleteComplaint = trpc.complaints.delete.useMutation({
+    onSuccess: () => {
+      // Refresh the complaints list
+      utils.complaints.list.invalidate();
+      setDeletingId(null);
+    },
+    onError: (error) => {
+      alert(`Failed to delete complaint: ${error.message}`);
+      setDeletingId(null);
+    },
+  });
+
+  const handleDelete = (e: React.MouseEvent, complaintId: string, complaintRef: string) => {
+    e.preventDefault(); // Prevent navigation
+    e.stopPropagation(); // Stop event bubbling
+    
+    if (confirm(`Are you sure you want to delete complaint "${complaintRef}"? This action cannot be undone.`)) {
+      setDeletingId(complaintId);
+      deleteComplaint.mutate(complaintId);
+    }
+  };
 
   // Debug logging
   console.log('🔍 Dashboard State:', { 
@@ -153,12 +179,12 @@ export default function DashboardPage() {
             ) : complaints && complaints.length > 0 ? (
               <div className="space-y-4">
                 {complaints.map((complaint: any) => (
-                  <Link key={complaint.id} href={`/complaints/${complaint.id}`}>
-                    <div className="border rounded-lg p-4 hover:bg-muted transition-colors cursor-pointer">
+                  <div key={complaint.id} className="border rounded-lg p-4 hover:bg-muted transition-colors relative group">
+                    <Link href={`/complaints/${complaint.id}`} className="block">
                       <div className="flex items-start justify-between">
-                        <div className="flex items-start gap-3">
+                        <div className="flex items-start gap-3 flex-1">
                           {getStatusIcon(complaint.status)}
-                          <div>
+                          <div className="flex-1">
                             <p className="font-medium">
                               {complaint.complaint_reference || 'Untitled Complaint'}
                             </p>
@@ -170,10 +196,21 @@ export default function DashboardPage() {
                             </p>
                           </div>
                         </div>
-                        {getStatusBadge(complaint.status)}
+                        <div className="flex items-center gap-2">
+                          {getStatusBadge(complaint.status)}
+                          <Button
+                            variant="ghost"
+                            size="sm"
+                            className="opacity-0 group-hover:opacity-100 transition-opacity text-red-600 hover:text-red-700 hover:bg-red-50"
+                            onClick={(e) => handleDelete(e, complaint.id, complaint.complaint_reference)}
+                            disabled={deletingId === complaint.id}
+                          >
+                            <Trash2 className="h-4 w-4" />
+                          </Button>
+                        </div>
                       </div>
-                    </div>
-                  </Link>
+                    </Link>
+                  </div>
                 ))}
               </div>
             ) : (

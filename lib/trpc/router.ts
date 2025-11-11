@@ -125,6 +125,32 @@ export const appRouter = router({
         return data;
       }),
 
+    delete: publicProcedure
+      .input(z.string())
+      .mutation(async ({ input }) => {
+        // Delete associated documents first (cascade should handle this, but being explicit)
+        await supabaseAdmin
+          .from('documents')
+          .delete()
+          .eq('complaint_id', input);
+        
+        // Delete generated letters
+        await supabaseAdmin
+          .from('generated_letters')
+          .delete()
+          .eq('complaint_id', input);
+        
+        // Delete the complaint
+        const { error } = await supabaseAdmin
+          .from('complaints')
+          .delete()
+          .eq('id', input);
+        
+        if (error) throw new Error(error.message);
+        
+        return { success: true };
+      }),
+
     addTimelineEvent: publicProcedure
       .input(z.object({
         complaintId: z.string(),

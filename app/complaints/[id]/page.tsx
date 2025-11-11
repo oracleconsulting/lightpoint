@@ -205,7 +205,10 @@ export default function ComplaintDetailPage({ params }: { params: { id: string }
               />
             )}
 
-            <TimelineView events={complaintData.timeline || []} />
+            <TimelineView 
+              events={complaintData.timeline || []} 
+              documents={documents as any[]}
+            />
 
             {!analysisData && !generatedLetter && (
               <Card>
