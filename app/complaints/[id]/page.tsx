@@ -168,7 +168,7 @@ This precedent was manually added because it represents a novel complaint type n
         </div>
       </header>
 
-      <main className="container mx-auto px-4 py-8">
+      <main className="container mx-auto px-4 py-8 max-w-7xl">
         {/* Complaint Header */}
         <div className="mb-8">
           <div className="flex justify-between items-start">
@@ -182,9 +182,9 @@ This precedent was manually added because it represents a novel complaint type n
           </div>
         </div>
 
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+        <div className="grid grid-cols-1 xl:grid-cols-3 gap-6">
           {/* Left Column - Documents & Actions */}
-          <div className="lg:col-span-1 space-y-6">
+          <div className="xl:col-span-1 space-y-6">
             <DocumentUploader complaintId={params.id} />
 
             <Card>
@@ -240,7 +240,7 @@ This precedent was manually added because it represents a novel complaint type n
           </div>
 
           {/* Right Column - Analysis & Timeline */}
-          <div className="lg:col-span-2 space-y-6">
+          <div className="xl:col-span-2 space-y-6">
             {/* OCR Failure warnings */}
             {documents && (documents as any[]).map((doc) => (
               <OCRFailureCard

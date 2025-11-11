@@ -512,6 +512,26 @@ export const appRouter = router({
         return data;
       }),
 
+    getSignedUrl: publicProcedure
+      .input(z.string()) // storage_path
+      .query(async ({ input }) => {
+        console.log('🔗 Generating signed URL for:', input);
+        
+        const { data, error } = await supabaseAdmin
+          .storage
+          .from('complaint-documents')
+          .createSignedUrl(input, 3600); // 1 hour expiry
+        
+        if (error) {
+          console.error('❌ Failed to generate signed URL:', error);
+          throw new Error(error.message);
+        }
+        
+        console.log('✅ Generated signed URL');
+        
+        return { signedUrl: data.signedUrl };
+      }),
+
     retryOCR: publicProcedure
       .input(z.string())
       .mutation(async ({ input }) => {

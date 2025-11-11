@@ -7,6 +7,7 @@ import { Button } from '@/components/ui/button';
 import { CheckCircle, Circle, Clock, AlertCircle, FileText, Download, Eye } from 'lucide-react';
 import { useState } from 'react';
 import { DocumentViewer } from './DocumentViewer';
+import { trpc } from '@/lib/trpc/client';
 
 interface TimelineEvent {
   date: string;
@@ -31,6 +32,13 @@ interface TimelineViewProps {
 
 export function TimelineView({ events, documents = [] }: TimelineViewProps) {
   const [viewingDoc, setViewingDoc] = useState<Document | null>(null);
+  const [viewingDocUrl, setViewingDocUrl] = useState<string | null>(null);
+
+  // Fetch signed URL when viewing a document
+  const { data: signedUrlData } = trpc.documents.getSignedUrl.useQuery(
+    viewingDoc?.storage_path || '',
+    { enabled: !!viewingDoc }
+  );
 
   const getEventIcon = (type: string) => {
     switch (type) {
@@ -136,10 +144,13 @@ export function TimelineView({ events, documents = [] }: TimelineViewProps) {
                             <Button
                               variant="ghost"
                               size="sm"
-                              onClick={() => {
-                                // Download document
-                                const publicUrl = `${process.env.NEXT_PUBLIC_SUPABASE_URL}/storage/v1/object/public/complaint-documents/${(event as any).documentData.storage_path}`;
-                                window.open(publicUrl, '_blank');
+                              onClick={async () => {
+                                // Generate signed URL for download
+                                const response = await fetch(`/api/trpc/documents.getSignedUrl?input=${encodeURIComponent(JSON.stringify((event as any).documentData.storage_path))}`);
+                                const result = await response.json();
+                                if (result.result?.data?.signedUrl) {
+                                  window.open(result.result.data.signedUrl, '_blank');
+                                }
                               }}
                               title="Download"
                             >
@@ -149,11 +160,11 @@ export function TimelineView({ events, documents = [] }: TimelineViewProps) {
                         </div>
                         
                         {/* Inline document viewer */}
-                        {viewingDoc && viewingDoc.id === (event as any).documentData.id && (
+                        {viewingDoc && viewingDoc.id === (event as any).documentData.id && signedUrlData && (
                           <DocumentViewer
                             filename={viewingDoc.filename}
                             fileType={viewingDoc.file_type}
-                            storageUrl={`${process.env.NEXT_PUBLIC_SUPABASE_URL}/storage/v1/object/public/complaint-documents/${viewingDoc.storage_path}`}
+                            storageUrl={signedUrlData.signedUrl}
                             onClose={() => setViewingDoc(null)}
                           />
                         )}
