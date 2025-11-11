@@ -8,6 +8,7 @@ import { searchKnowledgeBase, searchKnowledgeBaseMultiAngle, searchPrecedents } 
 import { logTime } from '@/lib/timeTracking';
 import { sanitizeForLLM } from '@/lib/privacy';
 import { prepareAnalysisContext, estimateTokens } from '@/lib/contextManager';
+import { generateEmbedding } from '@/lib/embeddings';
 
 export const appRouter = router({
   // Complaints
