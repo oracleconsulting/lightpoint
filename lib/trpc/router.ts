@@ -624,9 +624,8 @@ export const appRouter = router({
           .insert({
             complaint_id: input.complaintId,
             activity_type: input.activity,
-            duration_minutes: input.duration,
-            hourly_rate: input.rate || 250,
-            logged_at: new Date().toISOString(),
+            minutes_spent: input.duration,
+            automated: true,
           })
           .select()
           .single();

@@ -288,9 +288,9 @@ This precedent was manually added because it represents a novel complaint type n
               complaintId={params.id}
               entries={timeData?.logs?.map((log: any) => ({
                 activity: log.activity_type,
-                duration: log.duration_minutes,
-                rate: log.hourly_rate,
-                date: log.logged_at,
+                duration: log.minutes_spent,
+                rate: practiceSettings?.chargeOutRate || 250,
+                date: log.created_at,
               })) || []}
               chargeOutRate={practiceSettings?.chargeOutRate || 250}
             />
