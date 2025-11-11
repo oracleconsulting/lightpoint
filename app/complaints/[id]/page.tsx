@@ -277,7 +277,7 @@ This precedent was manually added because it represents a novel complaint type n
                 lastLetterDate={(savedLetters as any[])[0]?.created_at}
                 hasResponse={documents && (documents as any[]).some((d: any) => d.document_type === 'response')}
                 onFollowUpGenerated={() => {
-                  utils.letters.list.invalidate(params.id);
+                  utils.letters.list.invalidate({ complaintId: params.id });
                   utils.time.getComplaintTime.invalidate(params.id);
                 }}
               />
