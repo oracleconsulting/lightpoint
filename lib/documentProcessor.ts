@@ -10,157 +10,52 @@ import * as XLSX from 'xlsx';
 
 /**
  * Extract text from scanned PDF using OCR (for PDFs with no text layer)
- * Converts PDF to image and uses vision models
+ * Note: Vision AI models cannot read PDFs directly - they need images
  */
 const extractTextFromScannedPDF = async (pdfBuffer: Buffer): Promise<string> => {
-  try {
-    const apiKey = process.env.OPENROUTER_API_KEY;
-    
-    if (!apiKey) {
-      throw new Error('OPENROUTER_API_KEY not configured');
-    }
-    
-    // Convert PDF buffer to base64 for API
-    const base64PDF = pdfBuffer.toString('base64');
-    
-    console.log(`🔍 Performing OCR on scanned PDF (${Math.round(pdfBuffer.length / 1024)}KB)...`);
-    
-    // Try Claude 3.5 Sonnet first (excellent vision + document understanding)
-    console.log('🤖 Attempting OCR with Claude 3.5 Sonnet via OpenRouter...');
-    try {
-      const claudeResponse = await fetch('https://openrouter.ai/api/v1/chat/completions', {
-        method: 'POST',
-        headers: {
-          'Authorization': `Bearer ${apiKey}`,
-          'Content-Type': 'application/json',
-          'HTTP-Referer': 'https://lightpoint.app',
-          'X-Title': 'Lightpoint HMRC Complaint System',
-        },
-        body: JSON.stringify({
-          model: 'anthropic/claude-3.5-sonnet',
-          messages: [
-            {
-              role: 'user',
-              content: [
-                {
-                  type: 'text',
-                  text: `You are performing OCR (Optical Character Recognition) on a scanned HMRC tax document PDF.
+  console.log('⚠️ Scanned PDF detected (no text layer)');
+  console.log('📋 Vision models require images, not PDFs');
+  
+  // Return helpful guidance message
+  return `[SCANNED PDF DETECTED - NO TEXT LAYER]
 
-INSTRUCTIONS:
-1. Extract ALL text visible in the document
-2. Preserve exact formatting, line breaks, and structure
-3. Include ALL dates, reference numbers, amounts, and details
-4. Maintain the document's original layout as much as possible
-5. If text is unclear, use [unclear] but transcribe your best interpretation
-6. Process all pages if there are multiple pages
-7. Return ONLY the extracted text, no explanations or commentary
+This PDF appears to be a scanned document (images inside a PDF wrapper) rather than a digital PDF with selectable text.
 
-This is critical for complaint analysis - accuracy is essential.`
-                },
-                {
-                  type: 'image_url',
-                  image_url: {
-                    url: `data:application/pdf;base64,${base64PDF}`
-                  }
-                }
-              ]
-            }
-          ],
-          max_tokens: 8000,  // Longer for multi-page documents
-          temperature: 0.1
-        }),
-      });
-      
-      if (!claudeResponse.ok) {
-        const errorText = await claudeResponse.text();
-        console.error(`❌ Claude PDF OCR failed: ${claudeResponse.status} - ${errorText}`);
-        throw new Error(`Claude API error: ${claudeResponse.status}`);
-      }
-      
-      const claudeData = await claudeResponse.json();
-      
-      if (!claudeData.choices || !claudeData.choices[0] || !claudeData.choices[0].message) {
-        console.error('❌ Unexpected Claude response format:', JSON.stringify(claudeData));
-        throw new Error('Unexpected Claude response format');
-      }
-      
-      const extractedText = claudeData.choices[0].message.content;
-      console.log(`✅ Claude OCR extracted ${extractedText.length} characters from scanned PDF`);
-      
-      return extractedText;
-      
-    } catch (claudeError: any) {
-      console.error('❌ Claude PDF OCR failed:', claudeError.message);
-      console.log('🔄 Falling back to GPT-4o...');
-      
-      // Fallback to GPT-4o
-      const gptResponse = await fetch('https://openrouter.ai/api/v1/chat/completions', {
-        method: 'POST',
-        headers: {
-          'Authorization': `Bearer ${apiKey}`,
-          'Content-Type': 'application/json',
-          'HTTP-Referer': 'https://lightpoint.app',
-          'X-Title': 'Lightpoint HMRC Complaint System',
-        },
-        body: JSON.stringify({
-          model: 'openai/gpt-4o',
-          messages: [
-            {
-              role: 'user',
-              content: [
-                {
-                  type: 'text',
-                  text: `You are performing OCR (Optical Character Recognition) on a scanned HMRC tax document PDF.
+Current AI vision models cannot process PDF files directly - they require image formats (PNG, JPG, etc.).
 
-INSTRUCTIONS:
-1. Extract ALL text visible in the document
-2. Preserve exact formatting, line breaks, and structure
-3. Include ALL dates, reference numbers, amounts, and details
-4. Maintain the document's original layout as much as possible
-5. If text is unclear, use [unclear] but transcribe your best interpretation
-6. Process all pages if there are multiple pages
-7. Return ONLY the extracted text, no explanations or commentary
+RECOMMENDED SOLUTIONS (in order of quality):
 
-This is critical for complaint analysis - accuracy is essential.`
-                },
-                {
-                  type: 'image_url',
-                  image_url: {
-                    url: `data:application/pdf;base64,${base64PDF}`
-                  }
-                }
-              ]
-            }
-          ],
-          max_tokens: 8000,
-          temperature: 0.1
-        }),
-      });
-      
-      if (!gptResponse.ok) {
-        const errorText = await gptResponse.text();
-        console.error(`❌ GPT-4o PDF OCR also failed: ${gptResponse.status} - ${errorText}`);
-        throw new Error(`Both Claude and GPT-4o PDF OCR failed. Last error: ${gptResponse.status} - ${errorText}`);
-      }
-      
-      const gptData = await gptResponse.json();
-      
-      if (!gptData.choices || !gptData.choices[0] || !gptData.choices[0].message) {
-        console.error('❌ Unexpected GPT response format:', JSON.stringify(gptData));
-        throw new Error('Unexpected GPT response format');
-      }
-      
-      const extractedText = gptData.choices[0].message.content;
-      console.log(`✅ GPT-4o OCR extracted ${extractedText.length} characters from scanned PDF`);
-      
-      return extractedText;
-    }
-    
-  } catch (error: any) {
-    console.error('❌ Scanned PDF OCR completely failed:', error.message);
-    console.error('Error stack:', error.stack);
-    return `[OCR failed for scanned PDF: ${error.message}. PDF stored for manual review. Please check server logs for details.]`;
-  }
+1. **Use OCR-enabled PDF tool** (BEST):
+   - Open in Adobe Acrobat and run "Recognize Text (OCR)"
+   - On Mac: Open in Preview → File → Export → enable "Detect text"
+   - This adds a text layer to the PDF, then re-upload
+
+2. **Use a scanning app with built-in OCR**:
+   - Adobe Scan (mobile) - automatically adds OCR
+   - Microsoft Lens (mobile) - creates searchable PDFs
+   - These create PDFs with text layers that work immediately
+
+3. **Convert to images and upload those**:
+   - Open PDF and export each page as PNG or JPG (high quality, 300 DPI)
+   - Upload the images instead - our system will OCR them
+   - Works for screenshots too
+
+4. **Re-photograph the original document**:
+   - If you have the physical letter, take a clear photo
+   - Good lighting, flat surface, all text visible
+   - Upload as JPG/PNG - system will auto-OCR
+
+WHY THIS MATTERS:
+Without readable text, the system cannot:
+- Identify dates and reference numbers
+- Detect Charter violations or CRG breaches
+- Calculate delay timelines
+- Generate accurate complaint letters
+- Assess viability
+
+The document is safely stored and you can delete/re-upload once you've added OCR or converted to images.
+
+For immediate assistance, the fastest solution is #2 (scanning app) - it takes 30 seconds on your phone.]`;
 };
 
 /**
