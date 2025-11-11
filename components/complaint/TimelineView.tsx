@@ -6,6 +6,7 @@ import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { CheckCircle, Circle, Clock, AlertCircle, FileText, Download, Eye } from 'lucide-react';
 import { useState } from 'react';
+import { DocumentViewer } from './DocumentViewer';
 
 interface TimelineEvent {
   date: string;
@@ -29,7 +30,7 @@ interface TimelineViewProps {
 }
 
 export function TimelineView({ events, documents = [] }: TimelineViewProps) {
-  const [expandedDoc, setExpandedDoc] = useState<string | null>(null);
+  const [viewingDoc, setViewingDoc] = useState<Document | null>(null);
 
   const getEventIcon = (type: string) => {
     switch (type) {
@@ -127,6 +128,14 @@ export function TimelineView({ events, documents = [] }: TimelineViewProps) {
                             <Button
                               variant="ghost"
                               size="sm"
+                              onClick={() => setViewingDoc((event as any).documentData)}
+                              title="View document"
+                            >
+                              <Eye className="h-4 w-4" />
+                            </Button>
+                            <Button
+                              variant="ghost"
+                              size="sm"
                               onClick={() => {
                                 // Download document
                                 window.open((event as any).documentData.storage_path, '_blank');
@@ -137,6 +146,16 @@ export function TimelineView({ events, documents = [] }: TimelineViewProps) {
                             </Button>
                           </div>
                         </div>
+                        
+                        {/* Inline document viewer */}
+                        {viewingDoc && viewingDoc.id === (event as any).documentData.id && (
+                          <DocumentViewer
+                            filename={viewingDoc.filename}
+                            fileType={viewingDoc.file_type}
+                            storageUrl={viewingDoc.storage_path}
+                            onClose={() => setViewingDoc(null)}
+                          />
+                        )}
                       </div>
                     )}
                     

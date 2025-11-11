@@ -8,6 +8,7 @@ import { DocumentUploader } from '@/components/complaint/DocumentUploader';
 import { TimelineView } from '@/components/complaint/TimelineView';
 import { ViolationChecker } from '@/components/analysis/ViolationChecker';
 import { PrecedentMatcher } from '@/components/analysis/PrecedentMatcher';
+import { ReAnalysisPrompt } from '@/components/analysis/ReAnalysisPrompt';
 import { LetterPreview } from '@/components/complaint/LetterPreview';
 import { LetterManager } from '@/components/complaint/LetterManager';
 import { getPracticeLetterhead } from '@/lib/practiceSettings';
@@ -34,6 +35,15 @@ export default function ComplaintDetailPage({ params }: { params: { id: string }
     },
   });
 
+  const addToPrecedents = trpc.knowledge.addPrecedent.useMutation({
+    onSuccess: () => {
+      alert('Successfully added to precedent library! This will help with future similar complaints.');
+    },
+    onError: (error) => {
+      alert(`Failed to add to precedents: ${error.message}`);
+    },
+  });
+
   const generateLetter = trpc.letters.generateComplaint.useMutation({
     onSuccess: (data) => {
       setGeneratedLetter(data.letter);
@@ -52,6 +62,46 @@ export default function ComplaintDetailPage({ params }: { params: { id: string }
       console.error('❌ No documents available to analyze');
       alert('No documents available. Please upload documents first.');
     }
+  };
+
+  const handleReAnalyze = (additionalContext: string) => {
+    if (documents && documents.length > 0) {
+      const firstDocId = (documents as any[])[0].id;
+      console.log(`🔄 Re-analyzing with additional context`);
+      analyzeDocument.mutate({ 
+        documentId: firstDocId,
+        additionalContext 
+      });
+    }
+  };
+
+  const handleAddToPrecedents = (notes: string) => {
+    if (!analysisData) return;
+    
+    // Create a summary of the complaint for the precedent
+    const complaintData = complaint as any;
+    const title = `${complaintData.complaint_reference} - Novel Complaint Type`;
+    const content = `
+Complaint Reference: ${complaintData.complaint_reference}
+Client: ${complaintData.client_name_encrypted || 'Client'}
+Type: ${complaintData.complaint_type || 'General'}
+
+Analysis Summary:
+${JSON.stringify(analysisData.analysis, null, 2)}
+
+User Notes:
+${notes}
+
+This precedent was manually added because it represents a novel complaint type not initially recognized by the system.
+    `.trim();
+    
+    addToPrecedents.mutate({
+      complaintId: params.id,
+      title,
+      content,
+      notes,
+      category: 'precedents',
+    });
   };
 
   const handleGenerateLetter = () => {
@@ -182,6 +232,15 @@ export default function ComplaintDetailPage({ params }: { params: { id: string }
               <>
                 <ViolationChecker analysis={analysisData.analysis} />
                 <PrecedentMatcher precedents={analysisData.precedents} />
+                
+                {/* Re-analysis prompt for low viability */}
+                <ReAnalysisPrompt
+                  analysis={analysisData.analysis}
+                  onReAnalyze={handleReAnalyze}
+                  onAddToPrecedents={handleAddToPrecedents}
+                  isReAnalyzing={analyzeDocument.isPending}
+                  isAddingToPrecedents={addToPrecedents.isPending}
+                />
               </>
             )}
 

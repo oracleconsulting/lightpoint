@@ -193,6 +193,7 @@ export const appRouter = router({
     analyzeDocument: publicProcedure
       .input(z.object({
         documentId: z.string(),
+        additionalContext: z.string().optional(),
       }))
       .mutation(async ({ input }) => {
         // Get document
@@ -217,10 +218,14 @@ export const appRouter = router({
           .select('*')
           .eq('complaint_id', (document as any).complaint_id);
         
-        // Extract complaint context
-        const complaintContext = (complaint as any)?.timeline?.[0]?.summary || 
-                                (complaint as any)?.complaint_context || 
-                                'No additional context provided';
+        // Extract complaint context (including new additional context if provided)
+        const baseContext = (complaint as any)?.timeline?.[0]?.summary || 
+                           (complaint as any)?.complaint_context || 
+                           'No additional context provided';
+        
+        const complaintContext = input.additionalContext 
+          ? `${baseContext}\n\nADDITIONAL CONTEXT FOR RE-ANALYSIS:\n${input.additionalContext}`
+          : baseContext;
         
         console.log('📋 Starting analysis:', {
           documentCount: (allDocuments as any[])?.length || 0,
@@ -562,6 +567,42 @@ export const appRouter = router({
         }
         
         const { data, error } = await query.order('created_at', { ascending: false });
+        
+        if (error) throw new Error(error.message);
+        
+        return data;
+      }),
+
+    addPrecedent: publicProcedure
+      .input(z.object({
+        complaintId: z.string(),
+        title: z.string(),
+        content: z.string(),
+        notes: z.string().optional(),
+        category: z.string().optional(),
+      }))
+      .mutation(async ({ input }) => {
+        // Generate embedding for the precedent
+        const embedding = await generateEmbedding(input.content);
+        
+        // Add to knowledge base as precedent
+        const { data, error } = await (supabaseAdmin as any)
+          .from('knowledge_base')
+          .insert({
+            title: input.title,
+            content: input.content,
+            category: input.category || 'precedents',
+            tags: ['user-added', 'precedent', 'novel-complaint'],
+            metadata: {
+              complaint_id: input.complaintId,
+              notes: input.notes,
+              added_at: new Date().toISOString(),
+              source: 'manual_addition',
+            },
+            embedding,
+          })
+          .select()
+          .single();
         
         if (error) throw new Error(error.message);
         
