@@ -33,7 +33,8 @@ const extractTextFromImage = async (imageBuffer: Buffer): Promise<string> => {
     }
     
     // Try Claude 3.5 Sonnet first (best vision model on OpenRouter)
-    console.log('🤖 Attempting OCR with Claude 3.5 Sonnet...');
+    // OpenRouter uses OpenAI-compatible format for all models
+    console.log('🤖 Attempting OCR with Claude 3.5 Sonnet via OpenRouter...');
     try {
       const claudeResponse = await fetch('https://openrouter.ai/api/v1/chat/completions', {
         method: 'POST',
@@ -64,11 +65,9 @@ INSTRUCTIONS:
 This is critical for complaint analysis - accuracy is essential.`
                 },
                 {
-                  type: 'image',
-                  source: {
-                    type: 'base64',
-                    media_type: mimeType,
-                    data: processedImage
+                  type: 'image_url',
+                  image_url: {
+                    url: `data:${mimeType};base64,${processedImage}`
                   }
                 }
               ]
