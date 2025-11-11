@@ -22,7 +22,7 @@ interface Document {
   file_type: string;
   file_size: number;
   uploaded_at: string;
-  storage_path: string;
+  file_path: string;  // Supabase storage path
 }
 
 interface TimelineViewProps {
@@ -35,7 +35,7 @@ export function TimelineView({ events, documents = [] }: TimelineViewProps) {
 
   // Fetch signed URL when viewing a document
   const { data: signedUrlData, isLoading: isLoadingUrl, error: urlError } = trpc.documents.getSignedUrl.useQuery(
-    viewingDoc?.storage_path || '',
+    viewingDoc?.file_path || '',
     { 
       enabled: !!viewingDoc,
       retry: 1
@@ -44,6 +44,7 @@ export function TimelineView({ events, documents = [] }: TimelineViewProps) {
 
   console.log('TimelineView state:', { 
     viewingDoc: viewingDoc?.filename, 
+    filePath: viewingDoc?.file_path,
     signedUrlData: signedUrlData?.signedUrl?.substring(0, 50),
     isLoadingUrl,
     urlError 
@@ -158,7 +159,7 @@ export function TimelineView({ events, documents = [] }: TimelineViewProps) {
                               size="sm"
                               onClick={async () => {
                                 // Generate signed URL for download
-                                const response = await fetch(`/api/trpc/documents.getSignedUrl?input=${encodeURIComponent(JSON.stringify((event as any).documentData.storage_path))}`);
+                                const response = await fetch(`/api/trpc/documents.getSignedUrl?input=${encodeURIComponent(JSON.stringify((event as any).documentData.file_path))}`);
                                 const result = await response.json();
                                 if (result.result?.data?.signedUrl) {
                                   window.open(result.result.data.signedUrl, '_blank');

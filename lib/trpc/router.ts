@@ -513,7 +513,7 @@ export const appRouter = router({
       }),
 
     getSignedUrl: publicProcedure
-      .input(z.string()) // storage_path
+      .input(z.string()) // file_path (storage path)
       .query(async ({ input }) => {
         console.log('🔗 Generating signed URL for:', input);
         
@@ -551,7 +551,7 @@ export const appRouter = router({
         console.log('📋 Document metadata:', {
           id: doc.id,
           filename: doc.filename,
-          storage_path: doc.storage_path,
+          file_path: doc.file_path,
           complaint_id: doc.complaint_id,
           document_type: doc.document_type
         });
@@ -560,7 +560,7 @@ export const appRouter = router({
         const { data: fileData, error: downloadError } = await supabaseAdmin
           .storage
           .from('complaint-documents')
-          .download(doc.storage_path);
+          .download(doc.file_path);
         
         if (downloadError || !fileData) {
           throw new Error(`Failed to download file: ${downloadError?.message || 'Unknown error'}`);
@@ -575,12 +575,12 @@ export const appRouter = router({
         console.log('🔄 Starting OCR retry with processDocument...');
         
         // Re-process the document (will retry OCR)
-        // Use storage_path as filePath since it contains the full path with filename
+        // Use file_path as filePath since it contains the full path with filename
         await processDocument(
           fileBuffer,
           doc.complaint_id,
           doc.document_type || 'evidence',
-          doc.storage_path  // Full path with filename
+          doc.file_path  // Full path with filename
         );
         
         console.log('✅ OCR retry complete');
