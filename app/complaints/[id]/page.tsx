@@ -347,6 +347,7 @@ This precedent was manually added because it represents a novel complaint type n
             <TimelineView 
               events={complaintData.timeline || []} 
               documents={documents as any[]}
+              letters={savedLetters as any[]}
             />
 
             {!analysisData && !generatedLetter && (

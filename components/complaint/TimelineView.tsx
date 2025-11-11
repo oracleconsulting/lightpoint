@@ -25,12 +25,22 @@ interface Document {
   file_path: string;  // Supabase storage path
 }
 
+interface Letter {
+  id: string;
+  letter_type: string;
+  created_at: string;
+  locked_at?: string;
+  sent_at?: string;
+  letter_content: string;
+}
+
 interface TimelineViewProps {
   events: TimelineEvent[];
   documents?: Document[];
+  letters?: Letter[];
 }
 
-export function TimelineView({ events, documents = [] }: TimelineViewProps) {
+export function TimelineView({ events, documents = [], letters = [] }: TimelineViewProps) {
   const [viewingDoc, setViewingDoc] = useState<Document | null>(null);
 
   // Fetch signed URL when viewing a document
@@ -60,6 +70,8 @@ export function TimelineView({ events, documents = [] }: TimelineViewProps) {
         return <Clock className="h-5 w-5 text-gray-500" />;
       case 'document':
         return <FileText className="h-5 w-5 text-purple-500" />;
+      case 'letter':
+        return <FileText className="h-5 w-5 text-green-600" />;
       default:
         return <AlertCircle className="h-5 w-5 text-yellow-500" />;
     }
@@ -85,7 +97,7 @@ export function TimelineView({ events, documents = [] }: TimelineViewProps) {
     return 'bg-gray-100 text-gray-700';
   };
 
-  // Convert documents to timeline events and merge with existing events
+  // Convert documents to timeline events
   const documentEvents = documents.map(doc => ({
     date: doc.uploaded_at,
     type: 'document' as const,
@@ -93,9 +105,17 @@ export function TimelineView({ events, documents = [] }: TimelineViewProps) {
     documentData: doc,
   }));
 
+  // Convert letters to timeline events
+  const letterEvents = letters.map(letter => ({
+    date: letter.created_at,
+    type: 'letter' as const,
+    summary: `${letter.letter_type.replace(/_/g, ' ').toUpperCase()} generated`,
+    letterData: letter,
+  }));
+
   // Merge and sort all events chronologically (union type for type safety)
-  type MergedEvent = TimelineEvent | (typeof documentEvents)[0];
-  const allEvents: MergedEvent[] = [...events, ...documentEvents].sort((a, b) => 
+  type MergedEvent = TimelineEvent | (typeof documentEvents)[0] | (typeof letterEvents)[0];
+  const allEvents: MergedEvent[] = [...events, ...documentEvents, ...letterEvents].sort((a, b) => 
     new Date(b.date).getTime() - new Date(a.date).getTime()
   );
 
@@ -197,6 +217,35 @@ export function TimelineView({ events, documents = [] }: TimelineViewProps) {
                         )}
                       </div>
                     )}
+
+                    {/* Letter details */}
+                    {event.type === 'letter' && (event as any).letterData && (
+                      <div className="mt-3 border rounded-lg p-4 bg-green-50/50">
+                        <div className="flex items-start justify-between">
+                          <div className="flex-1">
+                            <div className="flex items-center gap-2 mb-2">
+                              <FileText className="h-5 w-5 text-green-600" />
+                              <span className="font-semibold text-green-900">
+                                {(event as any).letterData.letter_type.replace(/_/g, ' ').toUpperCase()}
+                              </span>
+                              {(event as any).letterData.locked_at && (
+                                <Badge variant="outline" className="bg-blue-100 text-blue-700">
+                                  🔒 Locked
+                                </Badge>
+                              )}
+                              {(event as any).letterData.sent_at && (
+                                <Badge variant="outline" className="bg-green-100 text-green-700">
+                                  ✉️ Sent
+                                </Badge>
+                              )}
+                            </div>
+                            <p className="text-sm text-muted-foreground">
+                              {(event as any).letterData.letter_content.substring(0, 200)}...
+                            </p>
+                          </div>
+                        </div>
+                      </div>
+                    )}
                     
                     {/* Response deadline (only for non-document events) */}
                     {'responseDeadline' in event && event.responseDeadline && (
@@ -208,7 +257,7 @@ export function TimelineView({ events, documents = [] }: TimelineViewProps) {
                     )}
                   </div>
                   <Badge variant="outline" className="ml-2">
-                    {event.type === 'document' ? 'uploaded' : event.type}
+                    {event.type === 'document' ? 'uploaded' : event.type === 'letter' ? 'generated' : event.type}
                   </Badge>
                 </div>
               </div>
