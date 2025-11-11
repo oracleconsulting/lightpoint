@@ -239,9 +239,83 @@ export function TimelineView({ events, documents = [], letters = [] }: TimelineV
                                 </Badge>
                               )}
                             </div>
-                            <p className="text-sm text-muted-foreground">
+                            <p className="text-sm text-muted-foreground mb-3">
                               {(event as any).letterData.letter_content.substring(0, 200)}...
                             </p>
+                            <Button
+                              variant="outline"
+                              size="sm"
+                              onClick={() => {
+                                // Create a modal/new window to show full letter
+                                const letterWindow = window.open('', '_blank', 'width=800,height=600');
+                                if (letterWindow) {
+                                  letterWindow.document.write(`
+                                    <!DOCTYPE html>
+                                    <html>
+                                    <head>
+                                      <title>${(event as any).letterData.letter_type.replace(/_/g, ' ').toUpperCase()}</title>
+                                      <style>
+                                        body {
+                                          font-family: 'Times New Roman', serif;
+                                          max-width: 800px;
+                                          margin: 40px auto;
+                                          padding: 20px;
+                                          line-height: 1.6;
+                                          color: #333;
+                                        }
+                                        h1 {
+                                          color: #2563eb;
+                                          margin-bottom: 20px;
+                                        }
+                                        .meta {
+                                          color: #666;
+                                          font-size: 0.9em;
+                                          margin-bottom: 30px;
+                                          padding-bottom: 10px;
+                                          border-bottom: 2px solid #e5e7eb;
+                                        }
+                                        .content {
+                                          white-space: pre-wrap;
+                                        }
+                                        .print-btn {
+                                          position: fixed;
+                                          top: 20px;
+                                          right: 20px;
+                                          padding: 10px 20px;
+                                          background: #2563eb;
+                                          color: white;
+                                          border: none;
+                                          border-radius: 6px;
+                                          cursor: pointer;
+                                          font-size: 14px;
+                                        }
+                                        .print-btn:hover {
+                                          background: #1d4ed8;
+                                        }
+                                        @media print {
+                                          .print-btn { display: none; }
+                                        }
+                                      </style>
+                                    </head>
+                                    <body>
+                                      <button class="print-btn" onclick="window.print()">🖨️ Print Letter</button>
+                                      <h1>${(event as any).letterData.letter_type.replace(/_/g, ' ').toUpperCase()}</h1>
+                                      <div class="meta">
+                                        Generated: ${format(new Date((event as any).letterData.created_at), 'PPP p')}<br>
+                                        ${(event as any).letterData.locked_at ? '🔒 Locked' : ''} 
+                                        ${(event as any).letterData.sent_at ? '✉️ Sent' : ''}
+                                      </div>
+                                      <div class="content">${(event as any).letterData.letter_content}</div>
+                                    </body>
+                                    </html>
+                                  `);
+                                  letterWindow.document.close();
+                                }
+                              }}
+                            >
+                              <Eye className="h-4 w-4 mr-2" />
+                              View Full Letter
+                            </Button>
                           </div>
                         </div>
                       </div>
