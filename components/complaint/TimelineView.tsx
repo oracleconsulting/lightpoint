@@ -138,7 +138,8 @@ export function TimelineView({ events, documents = [] }: TimelineViewProps) {
                               size="sm"
                               onClick={() => {
                                 // Download document
-                                window.open((event as any).documentData.storage_path, '_blank');
+                                const publicUrl = `${process.env.NEXT_PUBLIC_SUPABASE_URL}/storage/v1/object/public/complaint-documents/${(event as any).documentData.storage_path}`;
+                                window.open(publicUrl, '_blank');
                               }}
                               title="Download"
                             >
@@ -152,7 +153,7 @@ export function TimelineView({ events, documents = [] }: TimelineViewProps) {
                           <DocumentViewer
                             filename={viewingDoc.filename}
                             fileType={viewingDoc.file_type}
-                            storageUrl={viewingDoc.storage_path}
+                            storageUrl={`${process.env.NEXT_PUBLIC_SUPABASE_URL}/storage/v1/object/public/complaint-documents/${viewingDoc.storage_path}`}
                             onClose={() => setViewingDoc(null)}
                           />
                         )}
