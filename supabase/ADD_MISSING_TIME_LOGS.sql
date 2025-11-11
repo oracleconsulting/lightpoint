@@ -1,28 +1,22 @@
 -- ============================================================================
 -- MANUALLY ADD TIME LOGS FOR EXISTING COMPLAINT
 -- ============================================================================
--- This will add time entries for the work you've already done
--- Copy/paste into Supabase SQL Editor and click RUN
+-- ⚠️  RUN FIX_TIME_LOGS_TABLE.sql FIRST if you get "activity_type does not exist"
 -- ============================================================================
 
--- First, let's get your complaint ID
--- (You'll see it in the results, then use it below)
+-- Step 1: Get your complaint ID for reference "111"
 SELECT id, complaint_reference, status 
 FROM complaints 
-ORDER BY created_at DESC 
-LIMIT 5;
+WHERE complaint_reference = '111';
 
 -- ============================================================================
--- AFTER YOU SEE YOUR COMPLAINT ID ABOVE, UPDATE THE LINE BELOW
--- Replace 'YOUR-COMPLAINT-ID-HERE' with the actual ID
+-- Step 2: Copy the ID from above and paste it below
+-- Replace 'YOUR-COMPLAINT-ID-HERE' with the actual UUID
 -- ============================================================================
-
--- Example: If your ID is 'db57fc2d-1a70-41c9-a762-7c4ac2106323'
--- Replace the text below with that ID
 
 INSERT INTO time_logs (complaint_id, activity_type, minutes_spent, automated, created_at) VALUES
 
--- Initial Analysis (1 document = 40 minutes)
+-- Initial Analysis (1 document = 60 minutes)
 ('YOUR-COMPLAINT-ID-HERE', 'Initial Analysis', 60, true, NOW() - INTERVAL '2 hours'),
 
 -- Letter Generation (fixed 20 minutes)
