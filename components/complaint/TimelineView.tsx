@@ -7,7 +7,7 @@ import { Button } from '@/components/ui/button';
 import { CheckCircle, Circle, Clock, AlertCircle, FileText, Download, Eye } from 'lucide-react';
 import { useState } from 'react';
 import { DocumentViewer } from './DocumentViewer';
-import { trpc } from '@/lib/trpc/client';
+import { trpc } from '@/lib/trpc/Provider';
 
 interface TimelineEvent {
   date: string;
