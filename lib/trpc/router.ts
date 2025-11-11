@@ -515,6 +515,8 @@ export const appRouter = router({
     retryOCR: publicProcedure
       .input(z.string())
       .mutation(async ({ input }) => {
+        console.log('🔄 Retry OCR requested for document:', input);
+        
         // Get the document
         const { data: document } = await supabaseAdmin
           .from('documents')
@@ -526,6 +528,14 @@ export const appRouter = router({
         
         const doc = document as any;
         
+        console.log('📋 Document metadata:', {
+          id: doc.id,
+          filename: doc.filename,
+          storage_path: doc.storage_path,
+          complaint_id: doc.complaint_id,
+          document_type: doc.document_type
+        });
+        
         // Download the file from storage
         const { data: fileData, error: downloadError } = await supabaseAdmin
           .storage
@@ -536,17 +546,24 @@ export const appRouter = router({
           throw new Error(`Failed to download file: ${downloadError?.message || 'Unknown error'}`);
         }
         
+        console.log('📥 File downloaded, size:', fileData.size);
+        
         // Convert blob to buffer
         const arrayBuffer = await fileData.arrayBuffer();
         const fileBuffer = Buffer.from(arrayBuffer);
         
+        console.log('🔄 Starting OCR retry with processDocument...');
+        
         // Re-process the document (will retry OCR)
+        // Use storage_path as filePath since it contains the full path with filename
         await processDocument(
           fileBuffer,
           doc.complaint_id,
           doc.document_type || 'evidence',
-          doc.filename
+          doc.storage_path  // Full path with filename
         );
+        
+        console.log('✅ OCR retry complete');
         
         return { success: true };
       }),
