@@ -29,7 +29,7 @@ export default function ComplaintDetailPage({ params }: { params: { id: string }
   const { data: complaint, isLoading } = trpc.complaints.getById.useQuery(params.id);
   const { data: documents } = trpc.documents.list.useQuery(params.id);
   const { data: timeData } = trpc.time.getComplaintTime.useQuery(params.id);
-  const { data: savedLetters } = trpc.letters.list.useQuery(params.id);
+  const { data: savedLetters } = trpc.letters.list.useQuery({ complaintId: params.id });
 
   // Get practice settings for charge-out rate
   const practiceSettings = typeof window !== 'undefined' ? 
