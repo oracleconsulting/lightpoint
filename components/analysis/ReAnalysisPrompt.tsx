@@ -29,7 +29,8 @@ export function ReAnalysisPrompt({
   const [showAddToPrecedents, setShowAddToPrecedents] = useState(false);
 
   // Check if viability is low (0-30%)
-  const viability = analysis?.overall_viability || 0;
+  // The analysis object has 'successRate' field (e.g., 82)
+  const viability = analysis?.successRate || 0;
   const isLowViability = viability <= 30;
 
   // Don't show if viability is good
