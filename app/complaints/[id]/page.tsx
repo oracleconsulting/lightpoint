@@ -456,12 +456,12 @@ This precedent was manually added because it represents a novel complaint type n
             />
 
             {/* Flag to Management */}
-            {complaint && (
+            {complaint && (complaint as any).complaint_reference && (
               <>
                 <ComplaintTickets complaintId={params.id} />
                 <FlagToManagement
                   complaintId={params.id}
-                  complaintReference={complaint.complaint_reference}
+                  complaintReference={(complaint as any).complaint_reference}
                   onTicketCreated={() => {
                     utils.complaints.getById.invalidate(params.id);
                   }}
