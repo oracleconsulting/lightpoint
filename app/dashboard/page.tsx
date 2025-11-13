@@ -21,17 +21,16 @@ export default function DashboardPage() {
   const [isLoggingOut, setIsLoggingOut] = useState(false);
   
   const handleLogout = async () => {
+    console.log('🔴 LOGOUT BUTTON CLICKED');
+    
     if (confirm('Are you sure you want to sign out?')) {
+      console.log('🔴 USER CONFIRMED LOGOUT');
       setIsLoggingOut(true);
-      try {
-        console.log('🔓 Dashboard: Starting logout process...');
-        await signOut();
-        // signOut will handle the redirect via window.location.href
-      } catch (error) {
-        console.error('❌ Dashboard: Logout error:', error);
-        setIsLoggingOut(false);
-        alert('Failed to sign out. Please try again.');
-      }
+      
+      // Don't await - signOut redirects immediately
+      signOut();
+    } else {
+      console.log('🔴 USER CANCELLED LOGOUT');
     }
   };
   
