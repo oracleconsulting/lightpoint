@@ -105,19 +105,29 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   };
 
   const signIn = async (email: string, password: string) => {
+    console.log('🔵 AuthContext: signIn() starting...');
     const { data, error } = await supabase.auth.signInWithPassword({
       email,
       password,
     });
     
-    if (error) throw error;
-    
-    if (data.user) {
-      await syncUserProfile(data.user);
+    if (error) {
+      console.error('🔴 AuthContext: signIn error:', error);
+      throw error;
     }
     
+    console.log('✅ AuthContext: signIn successful, user:', data.user?.email);
+    
+    if (data.user) {
+      console.log('🔄 AuthContext: Syncing user profile...');
+      await syncUserProfile(data.user);
+      console.log('✅ AuthContext: User profile synced');
+    }
+    
+    console.log('🚀 AuthContext: Executing redirect to /dashboard NOW');
     // Use hard redirect to ensure clean navigation
     window.location.href = '/dashboard';
+    console.log('⚠️ AuthContext: This line should never execute (redirect should happen first)');
   };
 
   const signUp = async (email: string, password: string, metadata?: any) => {
