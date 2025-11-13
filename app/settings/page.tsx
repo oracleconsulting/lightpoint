@@ -5,10 +5,17 @@ import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/com
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
-import { Building2, Save, AlertCircle, CheckCircle2 } from 'lucide-react';
+import { Badge } from '@/components/ui/badge';
+import { Building2, Save, AlertCircle, CheckCircle2, User, LogIn } from 'lucide-react';
 import { getPracticeSettings, savePracticeSettings, type PracticeSettings } from '@/lib/practiceSettings';
+import { useUser } from '@/contexts/UserContext';
+import { trpc } from '@/lib/trpc/Provider';
+import Link from 'next/link';
 
 export default function PracticeSettingsPage() {
+  const { currentUser, setCurrentUser } = useUser();
+  const { data: users } = trpc.users.list.useQuery();
+  
   const [settings, setSettings] = useState<PracticeSettings>({
     firmName: '',
     address: {
@@ -56,6 +63,35 @@ export default function PracticeSettingsPage() {
     }
   };
 
+  const handleLoginAs = (user: any) => {
+    setCurrentUser({
+      id: user.id,
+      email: user.email,
+      full_name: user.full_name,
+      role: user.role,
+      organization_id: user.organization_id,
+      job_title: user.job_title,
+      phone: user.phone,
+      is_active: user.is_active,
+    });
+    setSaved(false);
+    setError('');
+    // Show success message
+    const tempSaved = saved;
+    setSaved(true);
+    setTimeout(() => setSaved(tempSaved), 2000);
+  };
+
+  const getRoleBadgeColor = (role: string) => {
+    switch (role) {
+      case 'admin': return 'bg-red-100 text-red-700 border-red-300';
+      case 'manager': return 'bg-purple-100 text-purple-700 border-purple-300';
+      case 'analyst': return 'bg-blue-100 text-blue-700 border-blue-300';
+      case 'viewer': return 'bg-gray-100 text-gray-700 border-gray-300';
+      default: return 'bg-gray-100 text-gray-700';
+    }
+  };
+
   return (
     <div className="min-h-screen bg-background p-8">
       <div className="max-w-4xl mx-auto space-y-6">
@@ -80,6 +116,104 @@ export default function PracticeSettingsPage() {
             <p className="text-sm text-green-600">Settings saved successfully!</p>
           </div>
         )}
+
+        {/* Current User & Login As */}
+        <Card className="border-blue-200 bg-blue-50/30">
+          <CardHeader>
+            <div className="flex items-center justify-between">
+              <div>
+                <CardTitle className="flex items-center gap-2">
+                  <User className="h-5 w-5 text-blue-600" />
+                  Current User
+                </CardTitle>
+                <CardDescription>
+                  Select which user account you're working as
+                </CardDescription>
+              </div>
+              <Link href="/users">
+                <Button variant="outline" size="sm">
+                  <User className="h-4 w-4 mr-2" />
+                  Manage Users
+                </Button>
+              </Link>
+            </div>
+          </CardHeader>
+          <CardContent className="space-y-4">
+            {currentUser ? (
+              <div className="p-4 bg-white border-2 border-blue-300 rounded-lg">
+                <div className="flex items-center justify-between">
+                  <div>
+                    <p className="font-semibold text-lg">{currentUser.full_name || currentUser.email}</p>
+                    <p className="text-sm text-muted-foreground">{currentUser.email}</p>
+                    {currentUser.job_title && (
+                      <p className="text-sm text-muted-foreground mt-1">{currentUser.job_title}</p>
+                    )}
+                  </div>
+                  <Badge variant="outline" className={getRoleBadgeColor(currentUser.role)}>
+                    {currentUser.role.toUpperCase()}
+                  </Badge>
+                </div>
+              </div>
+            ) : (
+              <div className="p-4 bg-yellow-50 border border-yellow-200 rounded-lg">
+                <p className="text-sm text-yellow-800 flex items-center gap-2">
+                  <AlertCircle className="h-4 w-4" />
+                  No user selected. Please select a user below to continue.
+                </p>
+              </div>
+            )}
+
+            <div>
+              <Label className="text-base font-semibold mb-3 block">Available Users:</Label>
+              <div className="space-y-2 max-h-64 overflow-y-auto">
+                {users && users.length > 0 ? (
+                  users.filter((u: any) => u.is_active).map((user: any) => (
+                    <div
+                      key={user.id}
+                      className={`flex items-center justify-between p-3 border rounded-lg transition-colors ${
+                        currentUser?.id === user.id
+                          ? 'bg-blue-100 border-blue-300'
+                          : 'bg-white hover:bg-gray-50 border-gray-200'
+                      }`}
+                    >
+                      <div className="flex-1">
+                        <p className="font-medium">{user.full_name || user.email}</p>
+                        <p className="text-xs text-muted-foreground">{user.email}</p>
+                        {user.job_title && (
+                          <p className="text-xs text-muted-foreground">{user.job_title}</p>
+                        )}
+                      </div>
+                      <div className="flex items-center gap-2">
+                        <Badge variant="outline" className={`text-xs ${getRoleBadgeColor(user.role)}`}>
+                          {user.role}
+                        </Badge>
+                        {currentUser?.id !== user.id && (
+                          <Button
+                            size="sm"
+                            variant="outline"
+                            onClick={() => handleLoginAs(user)}
+                          >
+                            <LogIn className="h-3 w-3 mr-1" />
+                            Switch
+                          </Button>
+                        )}
+                        {currentUser?.id === user.id && (
+                          <Badge variant="default" className="bg-green-600">
+                            Active
+                          </Badge>
+                        )}
+                      </div>
+                    </div>
+                  ))
+                ) : (
+                  <p className="text-sm text-muted-foreground text-center py-4">
+                    No users found. <Link href="/users" className="text-blue-600 hover:underline">Add users here</Link>
+                  </p>
+                )}
+              </div>
+            </div>
+          </CardContent>
+        </Card>
 
         <Card>
           <CardHeader>
