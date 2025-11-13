@@ -18,6 +18,7 @@ function LoginForm() {
   const [error, setError] = useState('');
   const [showResetPassword, setShowResetPassword] = useState(false);
   const [resetSent, setResetSent] = useState(false);
+  const [isLoggingIn, setIsLoggingIn] = useState(false);
   const { signIn, resetPassword } = useAuth();
   const searchParams = useSearchParams();
   const supabase = createClientComponentClient();
@@ -26,6 +27,11 @@ function LoginForm() {
   useEffect(() => {
     const forceLogout = async () => {
       const logoutParam = searchParams.get('logout') === 'true';
+      
+      // Don't check session if we're in the middle of logging in
+      if (isLoggingIn) {
+        return;
+      }
       
       // Check if there's an active session
       const { data: { session } } = await supabase.auth.getSession();
@@ -55,18 +61,21 @@ function LoginForm() {
       }
     };
     forceLogout();
-  }, [searchParams, supabase]);
+  }, [searchParams, supabase, isLoggingIn]);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setLoading(true);
+    setIsLoggingIn(true);
     setError('');
 
     try {
       await signIn(email, password);
+      // signIn will handle the redirect to /dashboard
     } catch (err: any) {
       console.error('Login error:', err);
       setError(err.message || 'Failed to sign in. Please check your credentials.');
+      setIsLoggingIn(false);
     } finally {
       setLoading(false);
     }
