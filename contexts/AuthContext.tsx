@@ -113,24 +113,29 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       password,
     });
     
-    const timeoutPromise = new Promise((_, reject) => 
+    const timeoutPromise = new Promise<never>((_, reject) => 
       setTimeout(() => reject(new Error('Sign in timeout')), 5000)
     );
     
-    const { data, error } = await Promise.race([
-      signInPromise,
-      timeoutPromise
-    ]).catch((err) => {
-      console.warn('⏰ AuthContext: signIn timed out, but auth state changed - continuing anyway');
-      // If we timeout but auth succeeded (we can check the session)
-      return supabase.auth.getSession().then(({ data: sessionData }) => {
-        if (sessionData.session) {
-          console.log('✅ AuthContext: Session found despite timeout, continuing');
-          return { data: { user: sessionData.session.user }, error: null };
-        }
-        throw err;
-      });
-    }) as any;
+    let data, error;
+    
+    try {
+      const result = await Promise.race([signInPromise, timeoutPromise]);
+      data = result.data;
+      error = result.error;
+    } catch (err) {
+      console.warn('⏰ AuthContext: signIn timed out, checking session directly...');
+      // If we timeout, check for session anyway (auth might have succeeded)
+      const sessionResult = await supabase.auth.getSession();
+      if (sessionResult.data.session) {
+        console.log('✅ AuthContext: Session found despite timeout, continuing');
+        data = { user: sessionResult.data.session.user };
+        error = null;
+      } else {
+        console.error('🔴 AuthContext: Timeout and no session found');
+        throw new Error('Sign in timed out and no session created');
+      }
+    }
     
     if (error) {
       console.error('🔴 AuthContext: signIn error:', error);
