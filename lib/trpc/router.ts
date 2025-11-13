@@ -730,6 +730,25 @@ export const appRouter = router({
         console.log(`✅ Deleted ${input.activityType} time logs`);
         return { success: true };
       }),
+
+    deleteActivity: publicProcedure
+      .input(z.string()) // time log ID
+      .mutation(async ({ input }) => {
+        console.log(`🗑️ Deleting time log: ${input}`);
+        
+        const { error } = await (supabaseAdmin as any)
+          .from('time_logs')
+          .delete()
+          .eq('id', input);
+        
+        if (error) {
+          console.error('Time log deletion error:', error);
+          throw new Error(error.message);
+        }
+        
+        console.log(`✅ Deleted time log`);
+        return { success: true };
+      }),
   }),
 
   // Knowledge base

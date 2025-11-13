@@ -1,11 +1,15 @@
 'use client';
 
+import { useState } from 'react';
 import { Card, CardHeader, CardTitle, CardContent } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
-import { Clock, FileText, Mail, Search, AlertCircle } from 'lucide-react';
+import { Button } from '@/components/ui/button';
+import { Clock, FileText, Mail, Search, AlertCircle, Trash2 } from 'lucide-react';
 import { format } from 'date-fns';
+import { trpc } from '@/lib/trpc/Provider';
 
 interface TimeEntry {
+  id?: string; // Time log ID for deletion
   activity: string;
   duration: number; // minutes
   rate: number; // per hour
@@ -17,9 +21,23 @@ interface TimeTrackerProps {
   complaintId: string;
   entries: TimeEntry[];
   chargeOutRate?: number;
+  onTimeDeleted?: () => void;
 }
 
-export function TimeTracker({ complaintId, entries, chargeOutRate = 250 }: TimeTrackerProps) {
+export function TimeTracker({ complaintId, entries, chargeOutRate = 250, onTimeDeleted }: TimeTrackerProps) {
+  const [deletingId, setDeletingId] = useState<string | null>(null);
+
+  const deleteTime = trpc.time.deleteActivity.useMutation({
+    onSuccess: () => {
+      setDeletingId(null);
+      onTimeDeleted?.();
+    },
+    onError: (error) => {
+      alert(`Failed to delete: ${error.message}`);
+      setDeletingId(null);
+    }
+  });
+
   // Auto-track activities with standard time allocations
   const getActivityIcon = (activity: string) => {
     if (activity.includes('Analysis')) return <Search className="h-4 w-4" />;
@@ -44,6 +62,18 @@ export function TimeTracker({ complaintId, entries, chargeOutRate = 250 }: TimeT
     if (hours === 0) return `${mins}m`;
     if (mins === 0) return `${hours}h`;
     return `${hours}h ${mins}m`;
+  };
+
+  const handleDelete = (entry: TimeEntry) => {
+    if (!entry.id) {
+      alert('Cannot delete this entry (no ID)');
+      return;
+    }
+
+    if (confirm(`Delete "${entry.activity}" (${formatDuration(entry.duration)})?`)) {
+      setDeletingId(entry.id);
+      deleteTime.mutate(entry.id);
+    }
   };
 
   return (
@@ -80,8 +110,8 @@ export function TimeTracker({ complaintId, entries, chargeOutRate = 250 }: TimeT
             <div className="space-y-2 max-h-64 overflow-y-auto">
               {entries.map((entry, index) => (
                 <div
-                  key={index}
-                  className="flex items-start gap-3 p-2 rounded border bg-card hover:bg-accent/50 transition-colors"
+                  key={entry.id || index}
+                  className="group flex items-start gap-3 p-2 rounded border bg-card hover:bg-accent/50 transition-colors"
                 >
                   <div className="mt-0.5 text-muted-foreground">
                     {getActivityIcon(entry.activity)}
@@ -92,7 +122,7 @@ export function TimeTracker({ complaintId, entries, chargeOutRate = 250 }: TimeT
                       {format(new Date(entry.date), 'PP p')}
                     </p>
                   </div>
-                  <div className="text-right">
+                  <div className="text-right flex-shrink-0">
                     <p className="text-sm font-medium">
                       {formatDuration(entry.duration)}
                     </p>
@@ -100,6 +130,18 @@ export function TimeTracker({ complaintId, entries, chargeOutRate = 250 }: TimeT
                       £{calculateValue(entry.duration, entry.rate || chargeOutRate).toFixed(2)}
                     </p>
                   </div>
+                  {entry.id && (
+                    <Button
+                      variant="ghost"
+                      size="sm"
+                      className="opacity-0 group-hover:opacity-100 transition-opacity h-8 w-8 p-0 text-red-600 hover:text-red-700 hover:bg-red-50"
+                      onClick={() => handleDelete(entry)}
+                      disabled={deletingId === entry.id}
+                      title="Delete time entry"
+                    >
+                      <Trash2 className="h-4 w-4" />
+                    </Button>
+                  )}
                 </div>
               ))}
             </div>

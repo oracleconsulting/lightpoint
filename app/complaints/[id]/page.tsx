@@ -433,12 +433,16 @@ This precedent was manually added because it represents a novel complaint type n
             <TimeTracker
               complaintId={params.id}
               entries={timeData?.logs?.map((log: any) => ({
+                id: log.id, // Include ID for deletion
                 activity: log.activity_type,
                 duration: log.minutes_spent,
                 rate: practiceSettings?.chargeOutRate || 250,
                 date: log.created_at,
               })) || []}
               chargeOutRate={practiceSettings?.chargeOutRate || 250}
+              onTimeDeleted={() => {
+                utils.time.getComplaintTime.invalidate(params.id);
+              }}
             />
 
             {/* Manual Time Entry */}
