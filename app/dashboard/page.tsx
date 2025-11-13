@@ -5,13 +5,15 @@ import { Card, CardHeader, CardTitle, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import Link from 'next/link';
-import { Plus, FileText, AlertCircle, CheckCircle, TrendingUp, Clock, Building2, Trash2 } from 'lucide-react';
+import { useUser } from '@/contexts/UserContext';
+import { Plus, FileText, AlertCircle, CheckCircle, TrendingUp, Clock, Building2, Trash2, Users, Shield } from 'lucide-react';
 import { useState } from 'react';
 
 // Mock data for demo - replace with actual auth
 const MOCK_ORGANIZATION_ID = '00000000-0000-0000-0000-000000000001';
 
 export default function DashboardPage() {
+  const { currentUser, canManageUsers } = useUser();
   const [deletingId, setDeletingId] = useState<string | null>(null);
   const [statusFilter, setStatusFilter] = useState<string | 'all'>('all');
   
@@ -107,6 +109,22 @@ export default function DashboardPage() {
                 Practice Settings
               </Button>
             </Link>
+            {canManageUsers && (
+              <>
+                <Link href="/users">
+                  <Button variant="outline">
+                    <Users className="h-4 w-4 mr-2" />
+                    Users
+                  </Button>
+                </Link>
+                <Link href="/management">
+                  <Button variant="outline">
+                    <Shield className="h-4 w-4 mr-2" />
+                    Management
+                  </Button>
+                </Link>
+              </>
+            )}
             <Link href="/complaints/new">
               <Button>
                 <Plus className="h-4 w-4 mr-2" />

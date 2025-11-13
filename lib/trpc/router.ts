@@ -859,6 +859,244 @@ export const appRouter = router({
         return data;
       }),
   }),
+
+  // Users
+  users: router({
+    list: publicProcedure
+      .query(async () => {
+        const { data, error } = await (supabaseAdmin as any)
+          .from('lightpoint_users')
+          .select('*')
+          .order('created_at', { ascending: false });
+        
+        if (error) throw new Error(error.message);
+        
+        return data;
+      }),
+
+    create: publicProcedure
+      .input(z.object({
+        email: z.string().email(),
+        full_name: z.string(),
+        role: z.enum(['admin', 'manager', 'analyst', 'viewer']),
+        job_title: z.string().optional(),
+        phone: z.string().optional(),
+      }))
+      .mutation(async ({ input }) => {
+        // Get default organization (in a real app, use auth context)
+        const orgId = '00000000-0000-0000-0000-000000000001';
+        
+        const { data, error } = await (supabaseAdmin as any)
+          .from('lightpoint_users')
+          .insert({
+            organization_id: orgId,
+            email: input.email,
+            full_name: input.full_name,
+            role: input.role,
+            job_title: input.job_title,
+            phone: input.phone,
+            is_active: true,
+          })
+          .select()
+          .single();
+        
+        if (error) throw new Error(error.message);
+        
+        return data;
+      }),
+
+    update: publicProcedure
+      .input(z.object({
+        id: z.string(),
+        email: z.string().email().optional(),
+        full_name: z.string().optional(),
+        role: z.enum(['admin', 'manager', 'analyst', 'viewer']).optional(),
+        job_title: z.string().optional(),
+        phone: z.string().optional(),
+      }))
+      .mutation(async ({ input }) => {
+        const { id, ...updateData } = input;
+        
+        const { data, error } = await (supabaseAdmin as any)
+          .from('lightpoint_users')
+          .update({
+            ...updateData,
+            updated_at: new Date().toISOString(),
+          })
+          .eq('id', id)
+          .select()
+          .single();
+        
+        if (error) throw new Error(error.message);
+        
+        return data;
+      }),
+
+    toggleStatus: publicProcedure
+      .input(z.string())
+      .mutation(async ({ input }) => {
+        // Get current status
+        const { data: user } = await (supabaseAdmin as any)
+          .from('lightpoint_users')
+          .select('is_active')
+          .eq('id', input)
+          .single();
+        
+        const { data, error } = await (supabaseAdmin as any)
+          .from('lightpoint_users')
+          .update({ 
+            is_active: !user.is_active,
+            updated_at: new Date().toISOString(),
+          })
+          .eq('id', input)
+          .select()
+          .single();
+        
+        if (error) throw new Error(error.message);
+        
+        return data;
+      }),
+  }),
+
+  // Tickets
+  tickets: router({
+    create: publicProcedure
+      .input(z.object({
+        complaintId: z.string(),
+        subject: z.string(),
+        description: z.string(),
+        priority: z.enum(['low', 'medium', 'high', 'urgent']),
+      }))
+      .mutation(async ({ input }) => {
+        // In a real app, get raised_by from auth context
+        const raisedBy = '00000000-0000-0000-0000-000000000002';
+        
+        const { data, error } = await (supabaseAdmin as any)
+          .from('management_tickets')
+          .insert({
+            complaint_id: input.complaintId,
+            raised_by: raisedBy,
+            subject: input.subject,
+            description: input.description,
+            priority: input.priority,
+            status: 'open',
+          })
+          .select()
+          .single();
+        
+        if (error) throw new Error(error.message);
+        
+        return data;
+      }),
+
+    list: publicProcedure
+      .query(async () => {
+        const { data, error } = await (supabaseAdmin as any)
+          .from('ticket_summary')
+          .select('*')
+          .order('created_at', { ascending: false });
+        
+        if (error) throw new Error(error.message);
+        
+        return data;
+      }),
+
+    getByComplaint: publicProcedure
+      .input(z.string())
+      .query(async ({ input }) => {
+        const { data, error } = await (supabaseAdmin as any)
+          .from('ticket_summary')
+          .select('*')
+          .eq('complaint_id', input)
+          .order('created_at', { ascending: false });
+        
+        if (error) throw new Error(error.message);
+        
+        return data;
+      }),
+
+    update: publicProcedure
+      .input(z.object({
+        id: z.string(),
+        status: z.enum(['open', 'in_progress', 'resolved', 'closed']).optional(),
+        assigned_to: z.string().optional(),
+        resolution_notes: z.string().optional(),
+      }))
+      .mutation(async ({ input }) => {
+        const { id, ...updateData } = input;
+        
+        const updatePayload: any = {
+          ...updateData,
+          updated_at: new Date().toISOString(),
+        };
+        
+        if (updateData.status === 'resolved' || updateData.status === 'closed') {
+          updatePayload.resolved_at = new Date().toISOString();
+        }
+        
+        const { data, error } = await (supabaseAdmin as any)
+          .from('management_tickets')
+          .update(updatePayload)
+          .eq('id', id)
+          .select()
+          .single();
+        
+        if (error) throw new Error(error.message);
+        
+        return data;
+      }),
+
+    addComment: publicProcedure
+      .input(z.object({
+        ticketId: z.string(),
+        comment: z.string(),
+      }))
+      .mutation(async ({ input }) => {
+        // In a real app, get user_id from auth context
+        const userId = '00000000-0000-0000-0000-000000000002';
+        
+        const { data, error } = await (supabaseAdmin as any)
+          .from('ticket_comments')
+          .insert({
+            ticket_id: input.ticketId,
+            user_id: userId,
+            comment: input.comment,
+          })
+          .select()
+          .single();
+        
+        if (error) throw new Error(error.message);
+        
+        return data;
+      }),
+  }),
+
+  // Management
+  management: router({
+    getOverview: publicProcedure
+      .query(async () => {
+        // Get management overview from view
+        const { data: users, error: usersError } = await (supabaseAdmin as any)
+          .from('management_overview')
+          .select('*');
+        
+        if (usersError) throw new Error(usersError.message);
+        
+        // Get totals
+        const totalUsers = users?.length || 0;
+        const totalComplaints = users?.reduce((sum: number, u: any) => sum + (u.total_complaints || 0), 0) || 0;
+        const openTickets = users?.reduce((sum: number, u: any) => sum + (u.open_tickets || 0), 0) || 0;
+        const totalMinutes = users?.reduce((sum: number, u: any) => sum + (u.total_minutes_logged || 0), 0) || 0;
+        
+        return {
+          total_users: totalUsers,
+          total_complaints: totalComplaints,
+          open_tickets: openTickets,
+          total_minutes: totalMinutes,
+          users,
+        };
+      }),
+  }),
 });
 
 export type AppRouter = typeof appRouter;
