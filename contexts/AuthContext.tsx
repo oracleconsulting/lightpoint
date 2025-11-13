@@ -162,15 +162,21 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         }
       });
       
-      console.log('🔐 Calling Supabase signOut...');
+      console.log('🔐 Calling Supabase signOut (with 3s timeout)...');
       
-      // Actually AWAIT the signOut to ensure cookies are cleared
-      await supabase.auth.signOut();
+      // Try to sign out, but don't wait more than 3 seconds
+      await Promise.race([
+        supabase.auth.signOut(),
+        new Promise((resolve) => setTimeout(() => {
+          console.log('⏰ SignOut timeout - redirecting anyway');
+          resolve(null);
+        }, 3000))
+      ]);
       
-      console.log('✅ Supabase signOut completed - session cleared');
+      console.log('✅ Supabase signOut completed (or timed out)');
       
-      // Wait a bit more to ensure middleware sees the cleared session
-      await new Promise(resolve => setTimeout(resolve, 200));
+      // Small delay to ensure everything is flushed
+      await new Promise(resolve => setTimeout(resolve, 100));
       
       console.log('🚀 Executing redirect to /login NOW');
       window.location.href = '/login';
