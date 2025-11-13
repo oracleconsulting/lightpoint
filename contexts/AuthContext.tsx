@@ -116,7 +116,8 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       await syncUserProfile(data.user);
     }
     
-    router.push('/dashboard');
+    // Use hard redirect to ensure clean navigation
+    window.location.href = '/dashboard';
   };
 
   const signUp = async (email: string, password: string, metadata?: any) => {
