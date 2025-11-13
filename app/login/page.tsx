@@ -30,13 +30,8 @@ function LoginForm() {
       // Check if there's an active session
       const { data: { session } } = await supabase.auth.getSession();
       
-      if (logoutParam || session) {
-        if (logoutParam) {
-          console.log('🔴 Login page: logout=true detected, forcing signout');
-        }
-        if (session) {
-          console.log('🔴 Login page: Active session detected, forcing signout');
-        }
+      if (logoutParam) {
+        console.log('🔴 Login page: logout=true detected, forcing signout');
         
         try {
           // Clear all storage
@@ -47,19 +42,16 @@ function LoginForm() {
           await supabase.auth.signOut();
           console.log('✅ Login page: Forced signout complete');
           
-          // Remove the query parameter and force a full page reload
-          if (logoutParam) {
-            window.history.replaceState({}, '', '/login');
-          }
-          
-          // Force a complete page reload to clear everything
-          setTimeout(() => {
-            window.location.reload();
-          }, 100);
+          // Remove the query parameter
+          window.history.replaceState({}, '', '/login');
           
         } catch (error) {
           console.error('❌ Login page: Force signout error:', error);
         }
+      } else if (session) {
+        // If there's a session but NO logout param, redirect to dashboard
+        console.log('🔵 Login page: Session found, redirecting to dashboard');
+        window.location.href = '/dashboard';
       }
     };
     forceLogout();

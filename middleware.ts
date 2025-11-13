@@ -21,10 +21,11 @@ export async function middleware(req: NextRequest) {
     return NextResponse.redirect(redirectUrl);
   }
 
-  // Redirect to dashboard if already logged in and accessing login
-  if (session && req.nextUrl.pathname === '/login') {
-    return NextResponse.redirect(new URL('/dashboard', req.url));
-  }
+  // DON'T redirect to dashboard if accessing login with session
+  // Let the login page handle it (so logout can work)
+  // if (session && req.nextUrl.pathname === '/login') {
+  //   return NextResponse.redirect(new URL('/dashboard', req.url));
+  // }
 
   return res;
 }
