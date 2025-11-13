@@ -135,40 +135,33 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   };
 
   const signOut = async () => {
-    console.log('🔓 Signing out...');
+    console.log('🔓 AuthContext: signOut() called');
     
-    // Set flag to prevent auth state listener from interfering
+    // IMMEDIATE redirect - do this FIRST before anything else can interfere
+    console.log('🚀 IMMEDIATE REDIRECT - bypassing all async operations');
+    
+    // Clear session from localStorage immediately
+    try {
+      localStorage.removeItem('supabase.auth.token');
+      console.log('✅ Cleared localStorage');
+    } catch (e) {
+      console.warn('⚠️ Could not clear localStorage:', e);
+    }
+    
+    // Fire and forget the Supabase signOut (don't wait for it)
+    supabase.auth.signOut().then(() => {
+      console.log('✅ Supabase signOut completed');
+    }).catch((error) => {
+      console.error('⚠️ Supabase signOut error:', error);
+    });
+    
+    // Clear user state
+    setUser(null);
     setIsSigningOut(true);
     
-    // Immediate redirect - nothing should block this
-    const redirectNow = () => {
-      console.log('🚀 Forcing redirect to /login');
-      // Use the most aggressive redirect possible
-      window.location.replace('/login');
-    };
-    
-    // Redirect in 50ms no matter what
-    const timeout = setTimeout(redirectNow, 50);
-    
-    try {
-      // Clear user state
-      setUser(null);
-      
-      // Try to sign out from Supabase (but don't let it block)
-      await Promise.race([
-        supabase.auth.signOut(),
-        new Promise((resolve) => setTimeout(resolve, 200))
-      ]);
-      
-      console.log('✅ Signed out successfully, redirecting...');
-      clearTimeout(timeout);
-      redirectNow();
-      
-    } catch (error) {
-      console.error('⚠️ Sign out error (redirecting anyway):', error);
-      clearTimeout(timeout);
-      redirectNow();
-    }
+    // Hard redirect immediately - use the nuclear option
+    console.log('🚀 Executing hard redirect NOW');
+    window.location.href = '/login';
   };
 
   const resetPassword = async (email: string) => {
