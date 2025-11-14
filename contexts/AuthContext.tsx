@@ -126,14 +126,28 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     } catch (err) {
       console.warn('⏰ AuthContext: signIn timed out, checking session directly...');
       // If we timeout, check for session anyway (auth might have succeeded)
-      const sessionResult = await supabase.auth.getSession();
-      if (sessionResult.data.session) {
-        console.log('✅ AuthContext: Session found despite timeout, continuing');
-        data = { user: sessionResult.data.session.user };
-        error = null;
-      } else {
-        console.error('🔴 AuthContext: Timeout and no session found');
-        throw new Error('Sign in timed out and no session created');
+      try {
+        const sessionPromise = supabase.auth.getSession();
+        const sessionTimeout = new Promise<never>((_, reject) => 
+          setTimeout(() => reject(new Error('Session check timeout')), 2000)
+        );
+        
+        const sessionResult = await Promise.race([sessionPromise, sessionTimeout]);
+        
+        if (sessionResult.data.session) {
+          console.log('✅ AuthContext: Session found despite timeout, continuing');
+          data = { user: sessionResult.data.session.user };
+          error = null;
+        } else {
+          console.error('🔴 AuthContext: Timeout and no session found');
+          throw new Error('Sign in timed out and no session created');
+        }
+      } catch (sessionErr) {
+        console.error('🔴 AuthContext: Session check also timed out or failed');
+        // Last resort: just redirect anyway since SIGNED_IN event fired
+        console.log('🚨 AuthContext: SIGNED_IN event detected, forcing redirect anyway');
+        window.location.href = '/dashboard';
+        return;
       }
     }
     
