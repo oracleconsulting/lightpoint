@@ -176,25 +176,37 @@ This precedent was manually added because it represents a novel complaint type n
   };
 
   const handleGenerateLetter = () => {
-    if (analysisData) {
-      // Get practice letterhead if configured
-      const practiceLetterhead = getPracticeLetterhead();
-      
-      // Get practice settings for charge-out rate
-      const practiceSettings = typeof window !== 'undefined' ? 
-        JSON.parse(localStorage.getItem('lightpoint_practice_settings') || 'null') : null;
-      
-      generateLetter.mutate({
-        complaintId: params.id,
-        analysis: analysisData.analysis,
-        practiceLetterhead, // Pass practice details
-        chargeOutRate: practiceSettings?.chargeOutRate, // Pass charge-out rate
-        userName: currentUser?.full_name || currentUser?.email?.split('@')[0] || 'Professional',
-        userTitle: currentUser?.job_title || 'Chartered Accountant',
-        userEmail: currentUser?.email,
-        userPhone: currentUser?.phone,
-      });
+    console.log('🔄 Generate Letter button clicked');
+    console.log('Analysis data:', analysisData ? 'Available' : 'Missing');
+    console.log('Current user:', currentUser);
+    
+    if (!analysisData) {
+      console.error('❌ Cannot generate letter: No analysis data');
+      return;
     }
+    
+    // Get practice letterhead if configured
+    const practiceLetterhead = getPracticeLetterhead();
+    console.log('Practice letterhead:', practiceLetterhead);
+    
+    // Get practice settings for charge-out rate
+    const practiceSettings = typeof window !== 'undefined' ? 
+      JSON.parse(localStorage.getItem('lightpoint_practice_settings') || 'null') : null;
+    console.log('Practice settings:', practiceSettings);
+    
+    const letterParams = {
+      complaintId: params.id,
+      analysis: analysisData.analysis,
+      practiceLetterhead, // Pass practice details
+      chargeOutRate: practiceSettings?.chargeOutRate, // Pass charge-out rate
+      userName: currentUser?.full_name || currentUser?.email?.split('@')[0] || 'Professional',
+      userTitle: currentUser?.job_title || 'Chartered Accountant',
+      userEmail: currentUser?.email,
+      userPhone: currentUser?.phone,
+    };
+    console.log('📤 Calling generateLetter with params:', letterParams);
+    
+    generateLetter.mutate(letterParams);
   };
 
   const handleRefineLetter = async (additionalContext: string) => {
