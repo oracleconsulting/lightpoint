@@ -137,7 +137,7 @@ CREATE TABLE IF NOT EXISTS rss_feeds (
 );
 
 -- Index for active feeds
-CREATE INDEX IF NOT EXISTS idx_rss_feeds_active ON rss_feeds(is_active, last_checked_at);
+CREATE INDEX IF NOT EXISTS idx_rss_feeds_active ON rss_feeds(is_active) WHERE is_active = TRUE;
 
 -- ============================================================================
 -- 4. RSS FEED ITEMS (What was detected)
