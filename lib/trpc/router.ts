@@ -1029,8 +1029,8 @@ export const appRouter = router({
           const { data: duplicates } = await supabaseAdmin.rpc('check_knowledge_duplicate', {
             p_embedding: embedding,
             p_similarity_threshold: 0.90,
-          } as any);
-          console.log(`  ✅ Found ${duplicates?.length || 0} potential duplicates`);
+          } as any) as { data: any[] | null };
+          console.log(`  ✅ Found ${(duplicates as any[] || []).length} potential duplicates`);
           
           // 4. Perform AI comparison using OpenRouter
           console.log('  🤖 Performing AI comparison...');
