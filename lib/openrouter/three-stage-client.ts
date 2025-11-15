@@ -147,9 +147,14 @@ Extract a complete fact sheet now (include any precedent examples found):`
 export const stage2_structureLetter = async (
   factSheet: string,
   practiceLetterhead?: string,
-  chargeOutRate?: number
+  chargeOutRate?: number,
+  userName?: string,
+  userTitle?: string,
+  userEmail?: string,
+  userPhone?: string
 ): Promise<string> => {
   console.log('🏗️ STAGE 2: Structuring letter with Sonnet 4.5 (professional structure)');
+  console.log('👤 Using real user:', userName, userTitle);
   
       const response = await callOpenRouter({
         model: STRUCTURE_MODEL,
@@ -242,10 +247,12 @@ We trust HMRC will treat this matter with the appropriate urgency.
 
 Yours faithfully,
 
-[Name]
-[Title]
-[Firm Name]
+${userName || '[Name]'}
+${userTitle || '[Title]'}
+${practiceLetterhead ? practiceLetterhead.split('\n')[0] : '[Firm Name]'}
 Chartered Accountants
+${userEmail ? `Email: ${userEmail}` : ''}
+${userPhone ? `Tel: ${userPhone}` : ''}
 
 **13. ENCLOSURES** ← Section heading MUST be bold
 
@@ -268,6 +275,7 @@ CRITICAL FORMATTING RULES (APPLY TO ALL LETTERS):
 8. **CRG Citations**: CRG reference FIRST, then violation name (e.g., "**1. CRG4025 - Unreasonable Delay**")
 9. **Bold Everything Important**: Section headings, dates, violation headers ALL MUST use **double asterisks**
 10. **Violation Detail**: Each violation should have 2-3 full sentences explaining breach, quantifying excess, stating impact
+11. **Real User Details**: ALWAYS use the provided real user name (${userName || 'NOT PROVIDED'}), title (${userTitle || 'NOT PROVIDED'}), email (${userEmail || 'NOT PROVIDED'}), and phone (${userPhone || 'NOT PROVIDED'}) in the closing. NEVER use placeholders like [Name], [Title], etc.
 
 MANDATORY BOLD FORMATTING - NON-NEGOTIABLE:
 
@@ -280,6 +288,7 @@ YOU MUST APPLY **DOUBLE ASTERISKS** TO EVERY:
 CRITICAL: If you return a letter with "Chronological Timeline of Events" instead of "**Chronological Timeline of Events**", you have FAILED the task.
 CRITICAL: If you return a letter with "February 2024:" instead of "**February 2024:**", you have FAILED the task.
 CRITICAL: If you return a letter with "1. CRG4025 - Unreasonable Delay" instead of "**1. CRG4025 - Unreasonable Delay**", you have FAILED the task.
+CRITICAL: If you use "[Name]" or "[Title]" instead of the REAL user details provided (${userName}, ${userTitle}), you have FAILED the task.
 
 LANGUAGE REFINEMENTS:
 - Use "14-month" NOT "14+ month"
@@ -287,9 +296,10 @@ LANGUAGE REFINEMENTS:
 - Use "neither our firm nor our client received" NOT "was never received by our client or our firm"
 
 DO NOT RETURN THE LETTER UNTIL EVERY SECTION HEADING, DATE, AND VIOLATION HAS **DOUBLE ASTERISKS**.
+DO NOT RETURN THE LETTER WITH PLACEHOLDERS - USE THE REAL USER DETAILS PROVIDED.
 
 Extract all relevant information from the fact sheet and organize it into this exact structure.
-Do NOT add tone or emotion - just organize facts professionally with ALL proper bold formatting.`
+Do NOT add tone or emotion - just organize facts professionally with ALL proper bold formatting and REAL user details.`
           },
           {
             role: 'user',
@@ -299,9 +309,16 @@ ${factSheet}
 
 ${chargeOutRate ? `\nCharge-out rate: £${chargeOutRate}/hour\n` : ''}
 
+REAL USER DETAILS TO USE IN CLOSING:
+- Name: ${userName || 'NOT PROVIDED - use placeholder'}
+- Title: ${userTitle || 'NOT PROVIDED - use placeholder'}
+- Email: ${userEmail || 'NOT PROVIDED - omit'}
+- Phone: ${userPhone || 'NOT PROVIDED - omit'}
+
 Create the structured letter now (facts only, no tone yet).
 
-REMINDER: Every section heading, timeline date, and violation header MUST have **double asterisks**:`
+REMINDER: Every section heading, timeline date, and violation header MUST have **double asterisks**.
+REMINDER: Use the REAL user name "${userName}" and title "${userTitle}" in the closing, NOT placeholders:`
           }
         ],
         temperature: 0.2, // Lower temperature for more consistent formatting compliance
@@ -322,9 +339,12 @@ REMINDER: Every section heading, timeline date, and violation header MUST have *
  * Gold standard: Firm, measured, organizational voice
  */
 export const stage3_addTone = async (
-  structuredLetter: string
+  structuredLetter: string,
+  userName?: string,
+  userTitle?: string
 ): Promise<string> => {
   console.log('✍️ STAGE 3: Adding professional tone with Opus 4.1 (measured, firm)');
+  console.log('👤 Preserving real user:', userName, userTitle);
   
       const response = await callOpenRouter({
         model: TONE_MODEL,
@@ -413,6 +433,12 @@ CRITICAL TONE GUIDELINES:
    - Use "completely" NOT "wholly"
    - "Comprehensive failure" is acceptable but use sparingly
 
+11. **PRESERVE REAL USER DETAILS**:
+   - The structured letter contains REAL user name (${userName || 'from input'}) and title (${userTitle || 'from input'})
+   - DO NOT change these to generic placeholders
+   - DO NOT change these to fictional names
+   - KEEP THEM EXACTLY AS PROVIDED
+
 **What to enhance:**
 - Make timeline entries clear and factual
 - Emphasize patterns of failure professionally
@@ -426,6 +452,7 @@ CRITICAL TONE GUIDELINES:
 - Professional headings as given
 - Factual accuracy
 - Bold formatting (**double asterisks**) on headings and dates
+- **REAL USER NAME AND TITLE** in the closing
 
 **Critical formatting requirements:**
 - ALL section headings MUST remain bold (e.g., **Chronological Timeline of Events**)
@@ -441,13 +468,17 @@ Before returning, verify EVERY instance has **double asterisks**:
 ✓ Timeline dates: **February 2024:**, **16 February 2024:** (NOT without asterisks)
 ✓ Violation headers: **1. CRG4025 - Unreasonable Delay** (NOT without asterisks)
 ✓ FORMAL COMPLAINT: **FORMAL COMPLAINT: [Title]** (NOT without asterisks)
+✓ Real user details: Keep "${userName}" and "${userTitle}" EXACTLY as provided (NOT placeholders, NOT generic names)
 
 CRITICAL FAILURES (These will cause the letter to be REJECTED):
 ❌ Returning "Chronological Timeline of Events" without **double asterisks**
 ❌ Returning "February 2024:" without **double asterisks**
 ❌ Returning "1. CRG4025 - Unreasonable Delay" without **double asterisks**
+❌ Changing real user name "${userName}" to a generic name or placeholder
+❌ Changing real user title "${userTitle}" to a generic title or placeholder
 
 IF YOU SEE ANY HEADING, DATE, OR VIOLATION WITHOUT **DOUBLE ASTERISKS**, YOU MUST ADD THEM NOW.
+IF YOU SEE THE REAL USER NAME OR TITLE, YOU MUST KEEP THEM EXACTLY AS PROVIDED.
 
 LANGUAGE POLISH:
 - Use "14-month" NOT "14+ month" or "14+ Month"
@@ -456,6 +487,7 @@ LANGUAGE POLISH:
 - Replace "was never received" with "neither X nor Y received"
 
 DO NOT RETURN THIS LETTER UNTIL YOU HAVE VERIFIED EVERY HEADING, DATE, AND VIOLATION HAS **DOUBLE ASTERISKS**.
+DO NOT RETURN THIS LETTER IF YOU HAVE CHANGED THE REAL USER NAME OR TITLE.
 
 **Gold standard language patterns:**
 - Use "comprehensive administrative failure" (not "wholly unacceptable")
@@ -467,7 +499,7 @@ DO NOT RETURN THIS LETTER UNTIL YOU HAVE VERIFIED EVERY HEADING, DATE, AND VIOLA
 **Temperature calibration:**
 This prompt uses temperature 0.3 for consistent professional output and formatting compliance.
 
-Transform the structured letter into a firm, professional complaint that demonstrates clear failures without aggressive language, preserving ALL bold formatting exactly as provided.`
+Transform the structured letter into a firm, professional complaint that demonstrates clear failures without aggressive language, preserving ALL bold formatting and REAL user details exactly as provided.`
           },
           {
             role: 'user',
@@ -477,7 +509,8 @@ ${structuredLetter}
 
 Transform it now (firm but professional, organizational voice, no "I").
 
-CRITICAL REMINDER: Verify ALL section headings, dates, and violation headers have **double asterisks** before returning:`
+CRITICAL REMINDER: Verify ALL section headings, dates, and violation headers have **double asterisks** before returning.
+CRITICAL REMINDER: Keep the real user name "${userName}" and title "${userTitle}" EXACTLY as provided - do NOT change to placeholders or generic names:`
           }
         ],
         temperature: 0.3, // Lower temperature for consistent formatting compliance
@@ -503,9 +536,14 @@ export const generateComplaintLetterThreeStage = async (
   clientReference: string,
   hmrcDepartment: string,
   practiceLetterhead?: string,
-  chargeOutRate?: number
+  chargeOutRate?: number,
+  userName?: string,
+  userTitle?: string,
+  userEmail?: string,
+  userPhone?: string
 ) => {
   console.log('🚀 Starting three-stage letter generation pipeline');
+  console.log('👤 User details:', { userName, userTitle, userEmail, userPhone });
   
   try {
     // STAGE 1: Extract facts (Sonnet 4.5 - 1M context)
@@ -520,12 +558,20 @@ export const generateComplaintLetterThreeStage = async (
     const structuredLetter = await stage2_structureLetter(
       factSheet,
       practiceLetterhead,
-      chargeOutRate
+      chargeOutRate,
+      userName,
+      userTitle,
+      userEmail,
+      userPhone
     );
     console.log('✅ Stage 2 complete: Letter structured');
     
     // STAGE 3: Add tone (Opus 4.1 - powerful)
-    const finalLetter = await stage3_addTone(structuredLetter);
+    const finalLetter = await stage3_addTone(
+      structuredLetter,
+      userName,
+      userTitle
+    );
     console.log('✅ Stage 3 complete: Professional fury added');
     
     console.log('🎉 Three-stage pipeline complete!');

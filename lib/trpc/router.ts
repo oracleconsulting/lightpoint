@@ -364,6 +364,10 @@ export const appRouter = router({
         analysis: z.any(),
         practiceLetterhead: z.string().optional(), // Optional: custom practice details
         chargeOutRate: z.number().optional(), // Optional: custom charge-out rate
+        userName: z.string().optional(), // User's full name
+        userTitle: z.string().optional(), // User's job title
+        userEmail: z.string().optional(), // User's email
+        userPhone: z.string().optional(), // User's phone
         useThreeStage: z.boolean().optional(), // Optional: use three-stage pipeline (default: true)
       }))
       .mutation(async ({ input }) => {
@@ -388,7 +392,11 @@ export const appRouter = router({
             (complaint as any).complaint_reference,
             (complaint as any).hmrc_department || 'HMRC',
             input.practiceLetterhead,
-            input.chargeOutRate
+            input.chargeOutRate,
+            input.userName,
+            input.userTitle,
+            input.userEmail,
+            input.userPhone
           );
         } else {
           console.log('📝 Using SINGLE-STAGE letter generation (legacy)');

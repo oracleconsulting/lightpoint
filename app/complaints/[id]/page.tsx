@@ -27,6 +27,7 @@ import Link from 'next/link';
 import { ArrowLeft, FileText, Sparkles, Send, Edit2, Check, X } from 'lucide-react';
 import { useState } from 'react';
 import { Input } from '@/components/ui/input';
+import { useUser } from '@/contexts/UserContext';
 
 export default function ComplaintDetailPage({ params }: { params: { id: string } }) {
   const [analysisData, setAnalysisData] = useState<any>(null);
@@ -34,6 +35,7 @@ export default function ComplaintDetailPage({ params }: { params: { id: string }
   const [isEditingReference, setIsEditingReference] = useState(false);
   const [editedReference, setEditedReference] = useState('');
 
+  const { currentUser } = useUser();
   const utils = trpc.useUtils();
   const { data: complaint, isLoading } = trpc.complaints.getById.useQuery(params.id);
   const { data: documents } = trpc.documents.list.useQuery(params.id);
@@ -187,6 +189,10 @@ This precedent was manually added because it represents a novel complaint type n
         analysis: analysisData.analysis,
         practiceLetterhead, // Pass practice details
         chargeOutRate: practiceSettings?.chargeOutRate, // Pass charge-out rate
+        userName: currentUser?.full_name || currentUser?.email?.split('@')[0] || 'Professional',
+        userTitle: currentUser?.job_title || 'Chartered Accountant',
+        userEmail: currentUser?.email,
+        userPhone: currentUser?.phone,
       });
     }
   };
@@ -251,6 +257,10 @@ This precedent was manually added because it represents a novel complaint type n
               analysis: newAnalysis.analysis,
               practiceLetterhead,
               chargeOutRate: practiceSettings?.chargeOutRate,
+              userName: currentUser?.full_name || currentUser?.email?.split('@')[0] || 'Professional',
+              userTitle: currentUser?.job_title || 'Chartered Accountant',
+              userEmail: currentUser?.email,
+              userPhone: currentUser?.phone,
             });
             
             // Refresh time data after all operations
