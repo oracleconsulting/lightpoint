@@ -1091,6 +1091,129 @@ export const appRouter = router({
       }),
   }),
 
+  // AI Settings
+  aiSettings: router({
+    // List all prompts
+    listPrompts: publicProcedure
+      .query(async () => {
+        try {
+          const { data, error } = await (supabaseAdmin as any)
+            .from('ai_prompts')
+            .select('*')
+            .order('prompt_category', { ascending: true })
+            .order('prompt_name', { ascending: true });
+          
+          if (error) {
+            console.warn('AI prompts table not available yet:', error);
+            return [];
+          }
+          return data;
+        } catch (err) {
+          console.warn('AI prompts query failed:', err);
+          return [];
+        }
+      }),
+
+    // Get single prompt
+    getPrompt: publicProcedure
+      .input(z.object({
+        promptKey: z.string(),
+      }))
+      .query(async ({ input }) => {
+        const { data, error } = await (supabaseAdmin as any)
+          .from('ai_prompts')
+          .select('*')
+          .eq('prompt_key', input.promptKey)
+          .eq('is_active', true)
+          .single();
+        
+        if (error) throw new Error(error.message);
+        return data;
+      }),
+
+    // Update prompt
+    updatePrompt: publicProcedure
+      .input(z.object({
+        promptId: z.string(),
+        systemPrompt: z.string(),
+        userPromptTemplate: z.string().nullable().optional(),
+        temperature: z.number().optional(),
+        maxTokens: z.number().optional(),
+      }))
+      .mutation(async ({ input }) => {
+        const updateData: any = {
+          system_prompt: input.systemPrompt,
+          last_modified_at: new Date().toISOString(),
+        };
+
+        if (input.userPromptTemplate !== undefined) {
+          updateData.user_prompt_template = input.userPromptTemplate;
+        }
+        if (input.temperature !== undefined) {
+          updateData.temperature = input.temperature;
+        }
+        if (input.maxTokens !== undefined) {
+          updateData.max_tokens = input.maxTokens;
+        }
+
+        // TODO: Add last_modified_by from auth context
+
+        const { data, error } = await (supabaseAdmin as any)
+          .from('ai_prompts')
+          .update(updateData)
+          .eq('id', input.promptId)
+          .select()
+          .single();
+        
+        if (error) throw new Error(error.message);
+        
+        console.log('✅ Prompt updated:', data.prompt_name, 'v' + data.version);
+        return data;
+      }),
+
+    // Reset prompt to default
+    resetPrompt: publicProcedure
+      .input(z.object({
+        promptId: z.string(),
+      }))
+      .mutation(async ({ input }) => {
+        const { data, error } = await (supabaseAdmin as any)
+          .from('ai_prompts')
+          .update({
+            system_prompt: (supabaseAdmin as any).raw('default_system_prompt'),
+            user_prompt_template: (supabaseAdmin as any).raw('default_user_prompt_template'),
+            is_custom: false,
+            last_modified_at: new Date().toISOString(),
+          })
+          .eq('id', input.promptId)
+          .select()
+          .single();
+        
+        if (error) throw new Error(error.message);
+        
+        console.log('✅ Prompt reset to default:', data.prompt_name);
+        return data;
+      }),
+
+    // Get prompt history
+    getPromptHistory: publicProcedure
+      .input(z.object({
+        promptId: z.string(),
+        limit: z.number().optional(),
+      }))
+      .query(async ({ input }) => {
+        const { data, error } = await (supabaseAdmin as any)
+          .from('ai_prompt_history')
+          .select('*')
+          .eq('prompt_id', input.promptId)
+          .order('version', { ascending: false })
+          .limit(input.limit || 10);
+        
+        if (error) throw new Error(error.message);
+        return data;
+      }),
+  }),
+
   // Users
   users: router({
     list: publicProcedure
