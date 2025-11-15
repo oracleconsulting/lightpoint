@@ -85,12 +85,17 @@ export async function compareDocumentToKnowledgeBase(
   }
 
   // Prepare context for AI comparison
-  const duplicatesContext = potentialDuplicates.map(dup => `
-[Existing Entry: ${dup.title}]
-Category: ${dup.category}
-Similarity: ${(dup.similarity! * 100).toFixed(1)}%
-Content Preview: ${dup.content.substring(0, 500)}...
-`).join('\n\n');
+  const duplicatesContext = potentialDuplicates.map(dup => {
+    const content = dup.content || '';
+    const contentPreview = content.length > 0 ? content.substring(0, 500) : '[No content available]';
+    
+    return `
+[Existing Entry: ${dup.title || 'Untitled'}]
+Category: ${dup.category || 'Uncategorized'}
+Similarity: ${((dup.similarity || 0) * 100).toFixed(1)}%
+Content Preview: ${contentPreview}...
+`;
+  }).join('\n\n');
 
   const prompt = `You are an expert knowledge base curator analyzing whether a new document should be added to an HMRC complaints guidance knowledge base.
 
