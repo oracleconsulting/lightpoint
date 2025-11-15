@@ -408,8 +408,8 @@ export const appRouter = router({
         chargeOutRate: z.number().optional(), // Optional: custom charge-out rate
         userName: z.string().optional(), // User's full name
         userTitle: z.string().optional(), // User's job title
-        userEmail: z.string().optional(), // User's email
-        userPhone: z.string().optional(), // User's phone
+        userEmail: z.string().optional().nullable(), // User's email (can be null)
+        userPhone: z.string().optional().nullable(), // User's phone (can be null)
         useThreeStage: z.boolean().optional(), // Optional: use three-stage pipeline (default: true)
       }))
       .mutation(async ({ input }) => {
