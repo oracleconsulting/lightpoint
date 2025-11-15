@@ -43,8 +43,12 @@ const callOpenRouter = async (request: OpenRouterRequest): Promise<string> => {
   }
   
   console.log(`🤖 Calling OpenRouter with model: ${request.model}`);
+  console.log(`📊 Request size: ${JSON.stringify(request.messages).length} chars`);
 
   try {
+    const startTime = Date.now();
+    console.log('⏳ Sending request to OpenRouter...');
+    
     const response = await fetch(OPENROUTER_API_URL, {
       method: 'POST',
       headers: {
@@ -61,15 +65,23 @@ const callOpenRouter = async (request: OpenRouterRequest): Promise<string> => {
       }),
     });
 
+    const fetchDuration = ((Date.now() - startTime) / 1000).toFixed(2);
+    console.log(`✅ OpenRouter responded (${fetchDuration}s)`);
+
     if (!response.ok) {
       const error = await response.text();
+      console.error('❌ OpenRouter API error:', response.status, error);
       throw new Error(`OpenRouter API error: ${response.status} - ${error}`);
     }
 
     const data = await response.json();
+    const totalDuration = ((Date.now() - startTime) / 1000).toFixed(2);
+    console.log(`✅ OpenRouter call complete (${totalDuration}s total)`);
+    console.log(`📄 Response length: ${data.choices[0].message.content.length} chars`);
+    
     return data.choices[0].message.content;
   } catch (error) {
-    console.error('OpenRouter API call failed:', error);
+    console.error('❌ OpenRouter API call failed:', error);
     throw error;
   }
 };
@@ -544,17 +556,25 @@ export const generateComplaintLetterThreeStage = async (
 ) => {
   console.log('🚀 Starting three-stage letter generation pipeline');
   console.log('👤 User details:', { userName, userTitle, userEmail, userPhone });
+  console.log('📋 Client Reference:', clientReference);
+  console.log('🏢 HMRC Department:', hmrcDepartment);
   
   try {
     // STAGE 1: Extract facts (Sonnet 4.5 - 1M context)
+    console.log('⏳ STAGE 1 STARTING: Extracting facts...');
+    const startStage1 = Date.now();
     const factSheet = await stage1_extractFacts(
       complaintAnalysis,
       clientReference,
       hmrcDepartment
     );
-    console.log('✅ Stage 1 complete: Facts extracted');
+    const stage1Duration = ((Date.now() - startStage1) / 1000).toFixed(2);
+    console.log(`✅ Stage 1 complete: Facts extracted (${stage1Duration}s)`);
+    console.log(`📄 Fact sheet length: ${factSheet.length} chars`);
     
     // STAGE 2: Structure letter (Opus 4.1 - objective)
+    console.log('⏳ STAGE 2 STARTING: Structuring letter...');
+    const startStage2 = Date.now();
     const structuredLetter = await stage2_structureLetter(
       factSheet,
       practiceLetterhead,
@@ -564,21 +584,32 @@ export const generateComplaintLetterThreeStage = async (
       userEmail,
       userPhone
     );
-    console.log('✅ Stage 2 complete: Letter structured');
+    const stage2Duration = ((Date.now() - startStage2) / 1000).toFixed(2);
+    console.log(`✅ Stage 2 complete: Letter structured (${stage2Duration}s)`);
+    console.log(`📄 Structured letter length: ${structuredLetter.length} chars`);
     
     // STAGE 3: Add tone (Opus 4.1 - powerful)
+    console.log('⏳ STAGE 3 STARTING: Adding professional tone...');
+    const startStage3 = Date.now();
     const finalLetter = await stage3_addTone(
       structuredLetter,
       userName,
       userTitle
     );
-    console.log('✅ Stage 3 complete: Professional fury added');
+    const stage3Duration = ((Date.now() - startStage3) / 1000).toFixed(2);
+    console.log(`✅ Stage 3 complete: Professional tone added (${stage3Duration}s)`);
+    console.log(`📄 Final letter length: ${finalLetter.length} chars`);
     
-    console.log('🎉 Three-stage pipeline complete!');
+    const totalDuration = ((Date.now() - startStage1) / 1000).toFixed(2);
+    console.log(`🎉 Three-stage pipeline complete! Total time: ${totalDuration}s`);
     
     return finalLetter;
   } catch (error: any) {
     console.error('❌ Three-stage pipeline failed:', error);
+    console.error('❌ Error details:', {
+      message: error.message,
+      stack: error.stack?.substring(0, 500),
+    });
     throw new Error(`Letter generation failed: ${error.message}`);
   }
 };

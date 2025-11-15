@@ -105,6 +105,7 @@ export default function ComplaintDetailPage({ params }: { params: { id: string }
 
   const generateLetter = trpc.letters.generateComplaint.useMutation({
     onSuccess: (data) => {
+      console.log('✅ Letter generation succeeded!');
       setGeneratedLetter(data.letter);
       
       // Auto-log time for letter generation (based on page count)
@@ -118,6 +119,10 @@ export default function ComplaintDetailPage({ params }: { params: { id: string }
       });
       
       console.log(`⏱️ Logged ${minutes} minutes for ${pages}-page letter (${description})`);
+    },
+    onError: (error) => {
+      console.error('❌ Letter generation failed:', error);
+      alert(`Failed to generate letter: ${error.message}`);
     },
   });
 
