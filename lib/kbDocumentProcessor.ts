@@ -108,23 +108,28 @@ export async function processDocumentForKB(
   file: File,
   orgId: string
 ): Promise<ProcessedDocument> {
+  const startTime = Date.now();
   console.log(`📄 Processing ${file.name}...`);
   
   // 1. Upload to storage
+  console.log(`  ⏳ Step 1/3: Uploading to storage...`);
   const storagePath = await uploadToStorage(file, orgId);
-  console.log(`✅ Uploaded to storage: ${storagePath}`);
+  console.log(`  ✅ Step 1/3: Uploaded to storage (${Date.now() - startTime}ms)`);
   
   // 2. Extract text
+  console.log(`  ⏳ Step 2/3: Extracting text from ${file.type || 'PDF'}...`);
+  const extractStartTime = Date.now();
   const extractedText = await extractTextFromFile(file);
-  console.log(`✅ Extracted ${extractedText.length} characters`);
+  console.log(`  ✅ Step 2/3: Extracted ${extractedText.length} characters (${Date.now() - extractStartTime}ms)`);
   
   if (extractedText.length < 100) {
     throw new Error('Document appears to be empty or text extraction failed');
   }
   
   // 3. Chunk text
+  console.log(`  ⏳ Step 3/3: Chunking text...`);
   const documentChunks = chunkText(extractedText);
-  console.log(`✅ Created ${documentChunks.length} chunks`);
+  console.log(`  ✅ Step 3/3: Created ${documentChunks.length} chunks (${Date.now() - startTime}ms total)`);
   
   return {
     filename: file.name,
