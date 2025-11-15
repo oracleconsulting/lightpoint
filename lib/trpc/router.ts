@@ -364,6 +364,25 @@ export const appRouter = router({
           JSON.stringify(precedents.slice(0, 3)) // Top 3 precedents only
         );
         
+        // SAVE ANALYSIS TO DATABASE to prevent re-running on refresh
+        console.log('💾 Saving analysis to database to lock it...');
+        try {
+          await (supabaseAdmin as any)
+            .from('complaints')
+            .update({
+              analysis: analysis,
+              complaint_context: complaintContext,
+              analysis_completed_at: new Date().toISOString(),
+              updated_at: new Date().toISOString()
+            })
+            .eq('id', (document as any).complaint_id);
+          
+          console.log('✅ Analysis saved and locked to database');
+        } catch (saveError) {
+          console.warn('⚠️ Failed to save analysis, but continuing:', saveError);
+          // Don't fail the request if saving fails - we still have the analysis
+        }
+        
         // Log time (optional - don't fail if this fails)
         try {
           await logTime((document as any).complaint_id, 'analysis', 20);

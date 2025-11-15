@@ -25,7 +25,7 @@ import { getPracticeLetterhead } from '@/lib/practiceSettings';
 import { calculateLetterTime, calculateAnalysisTime, TIME_BENCHMARKS } from '@/lib/timeCalculations';
 import Link from 'next/link';
 import { ArrowLeft, FileText, Sparkles, Send, Edit2, Check, X } from 'lucide-react';
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { Input } from '@/components/ui/input';
 import { useUser } from '@/contexts/UserContext';
 
@@ -41,6 +41,18 @@ export default function ComplaintDetailPage({ params }: { params: { id: string }
   const { data: documents } = trpc.documents.list.useQuery(params.id);
   const { data: timeData } = trpc.time.getComplaintTime.useQuery(params.id);
   const { data: savedLetters } = trpc.letters.list.useQuery({ complaintId: params.id });
+
+  // Load existing analysis from complaint data (if it exists)
+  useEffect(() => {
+    if (complaint && (complaint as any).analysis) {
+      console.log('📦 Loading existing analysis from database (prevents re-running LLM)');
+      setAnalysisData({
+        analysis: (complaint as any).analysis,
+        guidance: [], // Will be empty on reload, but analysis is the important part
+        precedents: [],
+      });
+    }
+  }, [complaint]);
 
   // Get practice settings for charge-out rate
   const practiceSettings = typeof window !== 'undefined' ? 
@@ -418,7 +430,11 @@ This precedent was manually added because it represents a novel complaint type n
                     className="w-full"
                   >
                     <Sparkles className="h-4 w-4 mr-2" />
-                    {analyzeDocument.isPending ? 'Analyzing...' : 'Analyze Complaint'}
+                    {analyzeDocument.isPending 
+                      ? 'Analyzing...' 
+                      : (complaint as any)?.analysis_completed_at 
+                      ? 'Re-analyze Complaint' 
+                      : 'Analyze Complaint'}
                   </Button>
 
                   <Button 
