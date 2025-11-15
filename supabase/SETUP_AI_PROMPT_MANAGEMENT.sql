@@ -3,8 +3,10 @@
 -- Store, version, and manage all AI prompts used throughout Lightpoint
 -- ============================================================================
 
--- Ensure clean setup
-BEGIN;
+-- Drop existing tables if they exist (for clean re-runs)
+DROP TABLE IF EXISTS ai_prompt_tests CASCADE;
+DROP TABLE IF EXISTS ai_prompt_history CASCADE;
+DROP TABLE IF EXISTS ai_prompts CASCADE;
 
 -- ============================================================================
 -- 1. AI PROMPTS TABLE (Store all system prompts)
@@ -14,36 +16,39 @@ CREATE TABLE IF NOT EXISTS ai_prompts (
   id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
   
   -- Prompt identification
-  prompt_key TEXT NOT NULL UNIQUE, -- e.g., 'analysis_main', 'letter_stage_1', 'letter_stage_2'
-  prompt_name TEXT NOT NULL, -- Human-readable name
-  prompt_category TEXT NOT NULL CHECK (prompt_category IN ('analysis', 'letter_generation', 'knowledge_comparison', 'other')),
+  prompt_key TEXT NOT NULL UNIQUE,
+  prompt_name TEXT NOT NULL,
+  prompt_category TEXT NOT NULL,
   
   -- Prompt content
-  system_prompt TEXT NOT NULL, -- The actual system prompt
-  user_prompt_template TEXT, -- Template for user prompt (with {placeholders})
-  default_system_prompt TEXT NOT NULL, -- Original default (for reset)
-  default_user_prompt_template TEXT, -- Original default user template
+  system_prompt TEXT NOT NULL,
+  user_prompt_template TEXT,
+  default_system_prompt TEXT NOT NULL,
+  default_user_prompt_template TEXT,
   
   -- Configuration
-  model_name TEXT NOT NULL, -- e.g., 'anthropic/claude-sonnet-4.5'
+  model_name TEXT NOT NULL,
   temperature FLOAT DEFAULT 0.7,
   max_tokens INTEGER DEFAULT 4000,
   
   -- Status
   is_active BOOLEAN DEFAULT TRUE,
-  is_custom BOOLEAN DEFAULT FALSE, -- TRUE if admin has modified from default
+  is_custom BOOLEAN DEFAULT FALSE,
   
   -- Metadata
-  description TEXT, -- What this prompt does
-  example_output TEXT, -- Example of what this prompt produces
-  variables JSONB, -- List of {placeholder} variables and their descriptions
+  description TEXT,
+  example_output TEXT,
+  variables JSONB,
   
   -- Versioning
   version INTEGER DEFAULT 1,
   last_modified_by UUID REFERENCES lightpoint_users(id),
   last_modified_at TIMESTAMPTZ DEFAULT NOW(),
   
-  created_at TIMESTAMPTZ DEFAULT NOW()
+  created_at TIMESTAMPTZ DEFAULT NOW(),
+  
+  -- Constraints
+  CONSTRAINT valid_category CHECK (prompt_category IN ('analysis', 'letter_generation', 'knowledge_comparison', 'other'))
 );
 
 -- Index for quick lookups
@@ -440,7 +445,4 @@ BEGIN
   RAISE NOTICE '';
   RAISE NOTICE 'Ready for: /settings/ai';
 END $$;
-
--- Commit the transaction
-COMMIT;
 
