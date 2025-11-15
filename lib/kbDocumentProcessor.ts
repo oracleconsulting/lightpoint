@@ -29,7 +29,7 @@ async function extractTextFromFile(file: File): Promise<string> {
   if (fileType === 'pdf') {
     // Use pdf-parse for PDFs
     const arrayBuffer = await file.arrayBuffer();
-    const pdfParse = (await import('pdf-parse/lib/pdf-parse')).default;
+    const pdfParse = (await import('pdf-parse/lib/pdf-parse' as any)).default;
     const data = await pdfParse(Buffer.from(arrayBuffer));
     return data.text;
   } else if (fileType === 'txt') {
